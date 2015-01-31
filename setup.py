@@ -10,7 +10,7 @@ kernel_json = {
 	     "-m", "matlab_kernel",
 	     "-f", "{connection_file}"],
     "display_name": "Matlab",
-    "language": "bash",
+    "language": "matlab",
     "name": "matlab_kernel",
 }
 
@@ -45,8 +45,7 @@ setup(name='matlab_kernel',
       author='Steven Silvester',
       author_email='steven.silvester@ieee.org',
       py_modules=['matlab_kernel'],
-      install_requires=["metakernel"],
-      requires=["pymatbridge", "IPython (>=3.0)"],
+      requires=["metakernel (>=0.8)", "pymatbridge", "IPython (>=3.0)"],
       cmdclass={'install': install_with_kernelspec},
       classifiers = [
           'Framework :: IPython',
