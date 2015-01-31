@@ -46,7 +46,7 @@ setup(name='matlab_kernel',
       author_email='steven.silvester@ieee.org',
       py_modules=['matlab_kernel'],
       install_requires=["metakernel"],
-      requires=["pymatbridge", "IPython>=3.0"],
+      requires=["pymatbridge", "IPython (>=3.0)"],
       cmdclass={'install': install_with_kernelspec},
       classifiers = [
           'Framework :: IPython',
