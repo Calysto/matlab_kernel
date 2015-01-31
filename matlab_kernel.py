@@ -40,6 +40,8 @@ class MatlabKernel(MetaKernel):
         self.log.debug('execute: %s' % code)
         resp = self._matlab.run_code(code.strip())
         self.log.debug('execute done')
+        if 'stdout' not in resp:
+            return
         return resp['stdout'].strip()
 
     def get_kernel_help_on(self, info, level=0, none_on_fail=False):

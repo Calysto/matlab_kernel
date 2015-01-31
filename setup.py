@@ -10,7 +10,7 @@ kernel_json = {
 	     "-m", "matlab_kernel",
 	     "-f", "{connection_file}"],
     "display_name": "Matlab",
-    "language": "matlab",
+    "language": "bash",
     "name": "matlab_kernel",
 }
 
