@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 from metakernel import MetaKernel
+from pymatbridge import Matlab
 
 
 class MatlabKernel(MetaKernel):
@@ -23,21 +24,23 @@ class MatlabKernel(MetaKernel):
         'help_links': MetaKernel.help_links,
     }
 
+    def __init__(self, *args, **kwargs):
+        excecutable = kwargs.pop('excecutable', 'matlab')
+        super(MatlabKernel, self).__init__(*args, **kwargs)
+        self._matlab = Matlab(excecutable)
+        self._matlab.start()
+
     def get_usage(self):
         return "This is the Matlab kernel."
 
     def do_execute_direct(self, code):
-        if not code.strip():
+        code = code.strip()
+        if not code:
             return
         self.log.debug('execute: %s' % code)
-        shell_magic = self.line_magics['shell']
-        resp = shell_magic.eval(code.strip())
+        resp = self._matlab.run_code(code.strip())
         self.log.debug('execute done')
-        return resp.strip()
-
-    def get_completions(self, info):
-        shell_magic = self.line_magics['shell']
-        return shell_magic.get_completions(info)
+        return resp['stdout'].strip()
 
     def get_kernel_help_on(self, info, level=0, none_on_fail=False):
         code = info['code'].strip()
@@ -46,8 +49,8 @@ class MatlabKernel(MetaKernel):
                 return None
             else:
                 return ""
-        shell_magic = self.line_magics['shell']
-        return shell_magic.get_help_on(info, level, none_on_fail)
+        resp = self._matlab.run_code('help %s' % code)
+        return resp['stdout']
 
     def repr(self, data):
         return data

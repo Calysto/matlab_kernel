@@ -10,7 +10,7 @@ kernel_json = {
 	     "-m", "matlab_kernel",
 	     "-f", "{connection_file}"],
     "display_name": "Matlab",
-    "language": "bash",
+    "language": "matlab",
     "name": "matlab_kernel",
 }
 
@@ -27,10 +27,10 @@ class install_with_kernelspec(install):
             install_kernel_resources(td)
             log.info('Installing kernel spec')
             try:
-                install_kernel_spec(td, 'metakernel_bash', user=self.user,
+                install_kernel_spec(td, 'matlab_kernel', user=self.user,
                                     replace=True)
             except:
-                install_kernel_spec(td, 'metakernel_bash', user=not self.user,
+                install_kernel_spec(td, 'matlab_kernel', user=not self.user,
                                     replace=True)
 
 svem_flag = '--single-version-externally-managed'
@@ -42,7 +42,7 @@ setup(name='matlab_kernel',
       version='0.1.0',
       description='A Matlab kernel for Jupyter/IPython',
       long_description="A Matlab kernel for Jupyter/IPython, based on MetaKernel",
-      url="https://github.com/calysto/matlab_kernel/tree/master/metakernel_bash",
+      url="https://github.com/calysto/matlab_kernel/tree/master/matlab_kernel",
       author='Steven Silvester',
       author_email='steven.silvester@ieee.org',
       py_modules=['matlab_kernel'],
