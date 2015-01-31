@@ -2,6 +2,7 @@ from __future__ import print_function
 
 from metakernel import MetaKernel
 from pymatbridge import Matlab
+from IPython.display import Image
 
 
 class MatlabKernel(MetaKernel):
@@ -42,6 +43,10 @@ class MatlabKernel(MetaKernel):
         self.log.debug('execute done')
         if 'stdout' not in resp['content']:
             raise ValueError(resp)
+        if 'figures' in resp['content']:
+            for fname in resp['content']['figures']:
+                im = Image(filename=fname)
+                self.Display(im)
         return resp['content']['stdout'].strip()
 
     def get_kernel_help_on(self, info, level=0, none_on_fail=False):
