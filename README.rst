@@ -14,4 +14,4 @@ which means it features a standard set of magics.
 A sample notebook is available online_.
 
 
-.. online: http://nbviewer.ipython.org/github/Calysto/matlab_kernel/blob/master/matlab_kernel.ipynb
+.. _online: http://nbviewer.ipython.org/github/Calysto/matlab_kernel/blob/master/matlab_kernel.ipynb

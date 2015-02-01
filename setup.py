@@ -40,7 +40,7 @@ if svem_flag in sys.argv:
 setup(name='matlab_kernel',
       version='0.1.0',
       description='A Matlab kernel for Jupyter/IPython',
-      long_description="A Matlab kernel for Jupyter/IPython, based on MetaKernel",
+      long_description= open('README.rst', 'r').read(),
       url="https://github.com/calysto/matlab_kernel/tree/master/matlab_kernel",
       author='Steven Silvester',
       author_email='steven.silvester@ieee.org',
