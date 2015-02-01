@@ -5,11 +5,14 @@ from pymatbridge import Matlab
 from IPython.display import Image
 
 
+__version__ == '0.1'
+
+
 class MatlabKernel(MetaKernel):
     implementation = 'Matlab Kernel'
     implementation_version = '1.0'
     language = 'matlab'
-    language_version = '0.1'
+    language_version = __version__,
     banner = "Matlab Kernel"
     language_info = {
         'mimetype': 'text/x-matlab',
