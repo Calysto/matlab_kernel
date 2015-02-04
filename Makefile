@@ -19,6 +19,10 @@ clean:
 	rm -rf dist
 	/usr/bin/find . -name "*.pyc" -o -name "*.py,cover"| xargs rm -f
 
+demo: clean
+	python setup.py install
+	ipython qtconsole --kernel $(NAME)
+
 test: clean
 	python setup.py install
 	cd; nosetests $(TEST_ARGS)
