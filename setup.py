@@ -37,8 +37,15 @@ if svem_flag in sys.argv:
     # Die, setuptools, die.
     sys.argv.remove(svem_flag)
 
+
+with open('matlab_kernel.py') as fid:
+    for line in fid:
+        if line.startswith('__version__'):
+            version = line.strip().split()[-1][1:-1]
+            break
+
 setup(name='matlab_kernel',
-      version='0.1.0',
+      version=version,
       description='A Matlab kernel for Jupyter/IPython',
       long_description= open('README.rst', 'r').read(),
       url="https://github.com/calysto/matlab_kernel",
