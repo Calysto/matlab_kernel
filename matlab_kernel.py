@@ -5,7 +5,7 @@ from pymatbridge import Matlab
 from IPython.display import Image
 
 
-__version__ = '0.3'
+__version__ = '0.3.1'
 
 
 class MatlabKernel(MetaKernel):
