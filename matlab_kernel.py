@@ -78,8 +78,8 @@ class MatlabKernel(MetaKernel):
                 self.Error(e)
                 width, height = 560, 420
 
-        cmd = "set(0, 'defaultfigurepapersize', [0 0 %s %s]);"
-        self.do_execute_direct(cmd % (width, height))
+        size = "set(0, 'defaultfigurepaperposition', [0 0 %s %s])\n;"
+        self.do_execute_direct(size % (width / 150., height / 150.))
 
     def repr(self, obj):
         return obj
