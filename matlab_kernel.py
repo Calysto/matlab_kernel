@@ -35,8 +35,8 @@ class MatlabKernel(MetaKernel):
     def do_execute_direct(self, code):
         if self._first:
             self._first = False
-            code = "set(0, 'defaultfigurepaperunits', 'inches');"
-            self._matlab.run_code(code)
+            fig_code = "set(0, 'defaultfigurepaperunits', 'inches');"
+            self._matlab.run_code(fig_code)
             self._matlab.run_code("set(0, 'defaultfigureunits', 'inches');")
             self.handle_plot_settings()
 
@@ -83,6 +83,10 @@ class MatlabKernel(MetaKernel):
 
     def repr(self, obj):
         return obj
+
+    def restart_kernel(self):
+        """Restart the kernel"""
+        self._matlab.stop()
 
 if __name__ == '__main__':
     from IPython.kernel.zmq.kernelapp import IPKernelApp
