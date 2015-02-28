@@ -68,15 +68,15 @@ class MatlabKernel(MetaKernel):
         settings = self.plot_settings
         settings.setdefault('size', '560,420')
 
+        width, height = 560, 420
         if isinstance(settings['size'], tuple):
             width, height = settings['size']
-        else:
+        elif settings['size']:
             try:
                 width, height = settings['size'].split(',')
                 width, height = int(width), int(height)
             except Exception as e:
                 self.Error(e)
-                width, height = 560, 420
 
         size = "set(0, 'defaultfigurepaperposition', [0 0 %s %s])\n;"
         self.do_execute_direct(size % (width / 150., height / 150.))
