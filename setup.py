@@ -55,8 +55,9 @@ setup(name='matlab_kernel',
       author_email='steven.silvester@ieee.org',
       py_modules=['matlab_kernel'],
       license="MIT",
-      requires=["metakernel (>=0.8)", "pymatbridge", "IPython (>=3.0)"],
-      classifiers = [
+      install_requires=["metakernel >= 0.8", "pymatbridge",
+                        "IPython >= 3.0"],
+      classifiers=[
           'Framework :: IPython',
           'License :: OSI Approved :: BSD License',
           'Programming Language :: Python :: 3',
