@@ -16,7 +16,7 @@ class MatlabKernel(MetaKernel):
     banner = "Matlab Kernel"
     language_info = {
         'mimetype': 'text/x-matlab',
-        'name': 'matlab',
+        'name': 'octave',
         'file_extension': '.m',
         'help_links': MetaKernel.help_links,
     }
