@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import os
 from metakernel import MetaKernel
 from pymatbridge import Matlab
 from IPython.display import Image
@@ -24,9 +25,9 @@ class MatlabKernel(MetaKernel):
     _first = True
 
     def __init__(self, *args, **kwargs):
-        excecutable = kwargs.pop('excecutable', 'matlab')
         super(MatlabKernel, self).__init__(*args, **kwargs)
-        self._matlab = Matlab(excecutable)
+        executable = os.environ.get('MATLAB_EXECUTABLE', 'matlab')
+        self._matlab = Matlab(executable)
         self._matlab.start()
 
     def get_usage(self):
