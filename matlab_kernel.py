@@ -4,6 +4,9 @@ from metakernel import MetaKernel
 from pymatbridge import Matlab
 from IPython.display import Image
 
+import subprocess
+import atexit
+
 
 __version__ = '0.4'
 
@@ -24,10 +27,13 @@ class MatlabKernel(MetaKernel):
     _first = True
 
     def __init__(self, *args, **kwargs):
-        excecutable = kwargs.pop('excecutable', 'matlab')
+        executable = kwargs.pop('executable', 'matlab')
         super(MatlabKernel, self).__init__(*args, **kwargs)
-        self._matlab = Matlab(excecutable)
+        self._matlab = Matlab(executable)
+        subprocess.check_call([executable, '-e'], stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE)
         self._matlab.start()
+        atexit.register(self.do_shutdown, False)
 
     def get_usage(self):
         return "This is the Matlab kernel."
@@ -52,7 +58,10 @@ class MatlabKernel(MetaKernel):
                     self.Display(im)
                 except Exception as e:
                     self.Error(e)
-        return resp['content']['stdout'].strip()
+        if not resp['success']:
+            self.Error(resp['content']['stdout'].strip())
+        else:
+            return resp['content']['stdout'].strip()
 
     def get_kernel_help_on(self, info, level=0, none_on_fail=False):
         obj = info.get('help_obj', '')
@@ -86,6 +95,11 @@ class MatlabKernel(MetaKernel):
 
     def restart_kernel(self):
         """Restart the kernel"""
+        self._matlab.stop()
+
+    def do_shutdown(self, restart):
+        with open('test.txt', 'w') as fid:
+            fid.write('hey hey\n')
         self._matlab.stop()
 
 if __name__ == '__main__':
