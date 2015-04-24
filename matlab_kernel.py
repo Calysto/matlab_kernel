@@ -1,14 +1,13 @@
 from __future__ import print_function
 
+import os
 from metakernel import MetaKernel
 from pymatbridge import Matlab
 from IPython.display import Image
 
 import subprocess
-import atexit
 
-
-__version__ = '0.4'
+__version__ = '0.5'
 
 
 class MatlabKernel(MetaKernel):
@@ -19,7 +18,7 @@ class MatlabKernel(MetaKernel):
     banner = "Matlab Kernel"
     language_info = {
         'mimetype': 'text/x-matlab',
-        'name': 'matlab',
+        'name': 'octave',
         'file_extension': '.m',
         'help_links': MetaKernel.help_links,
     }
@@ -27,13 +26,12 @@ class MatlabKernel(MetaKernel):
     _first = True
 
     def __init__(self, *args, **kwargs):
-        executable = kwargs.pop('executable', 'matlab')
         super(MatlabKernel, self).__init__(*args, **kwargs)
-        self._matlab = Matlab(executable)
+        executable = os.environ.get('MATLAB_EXECUTABLE', 'matlab')
         subprocess.check_call([executable, '-e'], stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE)
+        self._matlab = Matlab(executable)
         self._matlab.start()
-        atexit.register(self.do_shutdown, False)
 
     def get_usage(self):
         return "This is the Matlab kernel."
