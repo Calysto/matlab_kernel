@@ -17,4 +17,8 @@ You can specify the path to your matlab executable by creating a `MATLAB_EXECUTA
 
    MATLAB_EXECUTABLE=/usr/bin/matlab; ipython notebook --kernel=matlab_kernel 
 
+A note about plotting.  After each call to Matlab, we ask Matlab to save any 
+open figures to image files whose format and resolution are defined using 
+the `%plot` magic.  The resulting image is shown inline in the notebook.
+
 .. _online: http://nbviewer.ipython.org/github/Calysto/matlab_kernel/blob/master/matlab_kernel.ipynb
