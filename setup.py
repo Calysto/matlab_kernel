@@ -1,7 +1,5 @@
+from distutils.command.install import install
 from distutils.core import setup
-from distutils import log
-import os
-import json
 import sys
 
 kernel_json = {
@@ -14,25 +12,12 @@ kernel_json = {
 }
 
 
-def install_spec():
-    user = '--user' in sys.argv
-    from IPython.kernel.kernelspec import install_kernel_spec
-    from IPython.utils.tempdir import TemporaryDirectory
-    with TemporaryDirectory() as td:
-        os.chmod(td, 0o755)  # Starts off as 700, not user readable
-        with open(os.path.join(td, 'kernel.json'), 'w') as f:
-            json.dump(kernel_json, f, sort_keys=True)
-        log.info('Installing kernel spec')
-        try:
-            install_kernel_spec(td, "matlab_kernel", user=user,
-                                replace=True)
-        except:
-            install_kernel_spec(td, "matlab_kernel", user=not user,
-                                replace=True)
+class install_with_kernelspec(install):
 
-if 'install' in sys.argv or 'develop' in sys.argv:
-    install_spec()
-
+    def run(self):
+        install.run(self)
+        from metakernel.utils import install_spec
+        install_spec(kernel_json)
 
 svem_flag = '--single-version-externally-managed'
 if svem_flag in sys.argv:
@@ -49,13 +34,14 @@ with open('matlab_kernel.py') as fid:
 setup(name='matlab_kernel',
       version=version,
       description='A Matlab kernel for Jupyter/IPython',
-      long_description= open('README.rst', 'r').read(),
+      long_description=open('README.rst', 'r').read(),
       url="https://github.com/calysto/matlab_kernel",
       author='Steven Silvester',
       author_email='steven.silvester@ieee.org',
       py_modules=['matlab_kernel'],
       license="MIT",
-      install_requires=["metakernel >= 0.8", "pymatbridge",
+      cmdclass={'install': install_with_kernelspec},
+      install_requires=["metakernel >= 0.9", "pymatbridge",
                         "IPython >= 3.0"],
       classifiers=[
           'Framework :: IPython',
