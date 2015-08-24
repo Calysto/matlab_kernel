@@ -41,7 +41,7 @@ setup(name='matlab_kernel',
       py_modules=['matlab_kernel'],
       license="MIT",
       cmdclass={'install': install_with_kernelspec},
-      install_requires=["metakernel >= 0.9", "pymatbridge",
+      install_requires=["metakernel >= 0.10", "pymatbridge",
                         "IPython >= 3.0"],
       classifiers=[
           'Framework :: IPython',
