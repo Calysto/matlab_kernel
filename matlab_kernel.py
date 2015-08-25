@@ -7,7 +7,7 @@ from IPython.display import Image
 
 import subprocess
 
-__version__ = '0.6.3'
+__version__ = '0.6.4'
 
 
 class MatlabKernel(MetaKernel):
