@@ -1,5 +1,6 @@
 from distutils.command.install import install
-from distutils.core import setup, log
+from distutils.core import setup
+from disutils import log
 import sys
 import os
 import json
