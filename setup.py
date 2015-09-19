@@ -1,6 +1,8 @@
 from distutils.command.install import install
-from distutils.core import setup
+from distutils.core import setup, log
 import sys
+import os
+import json
 
 kernel_json = {
     "argv": [sys.executable,
@@ -16,8 +18,25 @@ class install_with_kernelspec(install):
 
     def run(self):
         install.run(self)
-        from metakernel.utils import install_spec
-        install_spec(kernel_json)
+        user = '--user' in sys.argv
+        try:
+            from ipykernel.kerspec import install_kernel_spec
+        except ImportError:
+            from IPython.kernel.kernelspec import install_kernel_spec
+        from IPython.utils.tempdir import TemporaryDirectory
+        with TemporaryDirectory() as td:
+            os.chmod(td, 0o755)  # Starts off as 700, not user readable
+            with open(os.path.join(td, 'kernel.json'), 'w') as f:
+                json.dump(kernel_json, f, sort_keys=True)
+            log.info('Installing kernel spec')
+            kernel_name = kernel_json['name']
+            try:
+                install_kernel_spec(td, kernel_name, user=user,
+                                    replace=True)
+            except:
+                install_kernel_spec(td, kernel_name, user=not user,
+                                    replace=True)
+
 
 svem_flag = '--single-version-externally-managed'
 if svem_flag in sys.argv:
