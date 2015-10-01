@@ -7,7 +7,7 @@ from IPython.display import Image
 
 import subprocess
 
-__version__ = '0.6.6'
+__version__ = '0.6.7'
 
 
 class MatlabKernel(MetaKernel):
@@ -101,5 +101,8 @@ class MatlabKernel(MetaKernel):
         self._matlab.stop()
 
 if __name__ == '__main__':
-    from IPython.kernel.zmq.kernelapp import IPKernelApp
+    try:
+        from ipykernel.kernelapp import IPKernelApp
+    except ImportError:
+        from IPython.kernel.zmq.kernelapp import IPKernelApp
     IPKernelApp.launch_instance(kernel_class=MatlabKernel)
