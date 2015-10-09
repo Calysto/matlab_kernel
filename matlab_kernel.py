@@ -7,7 +7,7 @@ from IPython.display import Image
 
 import subprocess
 
-__version__ = '0.6.7'
+__version__ = '0.6.8'
 
 
 class MatlabKernel(MetaKernel):
@@ -20,6 +20,7 @@ class MatlabKernel(MetaKernel):
         'mimetype': 'text/x-matlab',
         'name': 'octave',
         'file_extension': '.m',
+        "codemirror_mode": "Octave",
         'help_links': MetaKernel.help_links,
     }
 
@@ -59,7 +60,7 @@ class MatlabKernel(MetaKernel):
         if not resp['success']:
             self.Error(resp['content']['stdout'].strip())
         else:
-            return resp['content']['stdout'].strip()
+            return resp['content']['stdout'].strip() or None
 
     def get_kernel_help_on(self, info, level=0, none_on_fail=False):
         obj = info.get('help_obj', '')
