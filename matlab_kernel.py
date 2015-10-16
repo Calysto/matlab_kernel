@@ -29,8 +29,6 @@ class MatlabKernel(MetaKernel):
     def __init__(self, *args, **kwargs):
         super(MatlabKernel, self).__init__(*args, **kwargs)
         executable = os.environ.get('MATLAB_EXECUTABLE', 'matlab')
-        subprocess.check_call([executable, '-e'], stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE)
         self._matlab = Matlab(executable)
         self._matlab.start()
 
@@ -97,8 +95,6 @@ class MatlabKernel(MetaKernel):
         self._matlab.stop()
 
     def do_shutdown(self, restart):
-        with open('test.txt', 'w') as fid:
-            fid.write('hey hey\n')
         self._matlab.stop()
 
 if __name__ == '__main__':
