@@ -1,12 +1,10 @@
 A Jupyter/IPython kernel for Matlab
 
-This requires IPython 3 and `pymatbridge <http://pypi.python.org/pypi/pymatbridge>`_.
+This requires `Jupyter Notebook <http://jupyter.readthedocs.org/en/latest/install.html>`_, and `pymatbridge <http://pypi.python.org/pypi/pymatbridge>`_.
 
-To test it, install via ``pip`` or ``setup.py``, then::
+Install as ``pip install matlab_kernel``.
 
-    ipython qtconsole --kernel=matlab_kernel
-
-Or select the Matlab Kernel in the IPython Notebook.
+Then, you can select the "Matlab" Kernel in the Jupyter Notebook.
 
 This is based on `MetaKernel <http://pypi.python.org/pypi/metakernel>`_,
 which means it features a standard set of magics.
