@@ -1,6 +1,6 @@
 A Jupyter/IPython kernel for Matlab
 
-This requires IPython 3 and `pymatbridge <http://pypi.python.org/pypi/pymatbridge>`_.
+This requires IPython/Jupyter >= 3 and `pymatbridge <http://pypi.python.org/pypi/pymatbridge>`_.
 
 To test it, install via ``pip`` or ``setup.py``, then::
 
