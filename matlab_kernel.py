@@ -28,8 +28,8 @@ class MatlabKernel(MetaKernel):
 
     def __init__(self, *args, **kwargs):
         super(MatlabKernel, self).__init__(*args, **kwargs)
-        self._matlab = Matlab()
-        self._matlab.start()
+        executable = os.environ.get('MATLAB_EXECUTABLE', 'matlab')
+        self._matlab = Matlab(executable)
 
     def get_usage(self):
         return "This is the Matlab kernel."
@@ -94,8 +94,6 @@ class MatlabKernel(MetaKernel):
         self._matlab.stop()
 
     def do_shutdown(self, restart):
-        with open('test.txt', 'w') as fid:
-            fid.write('hey hey\n')
         self._matlab.stop()
 
 if __name__ == '__main__':
