@@ -7,7 +7,7 @@ from IPython.display import Image
 
 import subprocess
 
-__version__ = '0.6.9'
+__version__ = '0.6.10'
 
 
 class MatlabKernel(MetaKernel):
@@ -28,10 +28,7 @@ class MatlabKernel(MetaKernel):
 
     def __init__(self, *args, **kwargs):
         super(MatlabKernel, self).__init__(*args, **kwargs)
-        executable = os.environ.get('MATLAB_EXECUTABLE', 'matlab')
-        subprocess.check_call([executable, '-e'], stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE)
-        self._matlab = Matlab(executable)
+        self._matlab = Matlab()
         self._matlab.start()
 
     def get_usage(self):
