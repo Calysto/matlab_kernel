@@ -38,7 +38,7 @@ cover: clean
 	nosetests $(TEST_ARGS) --with-cov --cov $(NAME) $(NAME)
 	coverage annotate
 
-release: test
+release:
 	pip install wheel
 	python setup.py register
 	python setup.py sdist --formats=gztar,zip upload
