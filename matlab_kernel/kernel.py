@@ -5,9 +5,7 @@ from metakernel import MetaKernel
 from pymatbridge import Matlab
 from IPython.display import Image
 
-import subprocess
-
-__version__ = '0.6.10'
+from . import __version__
 
 
 class MatlabKernel(MetaKernel):
