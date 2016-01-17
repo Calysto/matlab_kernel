@@ -1,0 +1,12 @@
+language: python
+python:
+  - "3.5"
+install:
+  - sudo apt-add-repository -y ppa:picaso/octave;
+  - sudo apt-get update -qq;
+  - sudo apt-get install -qq octave liboctave-dev;
+  - pip install ipykernel jupyter_client traitlets jupyter_kernel_test flit
+  - flit install
+  - python -m matlab_kernel.install
+script:
+  - python test_matlab_kernel.py
