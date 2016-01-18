@@ -9,4 +9,5 @@ install:
   - flit install
   - python -m matlab_kernel.install
 script:
-  - python test_matlab_kernel.py
+
+  - export OCTAVE_EXECUTABLE=octave; python test_matlab_kernel.py
