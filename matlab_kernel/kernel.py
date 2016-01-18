@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import os
 from metakernel import MetaKernel
-from pymatbridge import Matlab
+from pymatbridge import Matlab, Octave
 from IPython.display import Image
 
 from . import __version__
@@ -12,13 +12,14 @@ class MatlabKernel(MetaKernel):
     implementation = 'Matlab Kernel'
     implementation_version = __version__,
     language = 'matlab'
-    language_version = '0.1',
+    language_version = __version__,
     banner = "Matlab Kernel"
     language_info = {
         'mimetype': 'text/x-matlab',
-        'name': 'octave',
+        'name': 'matlab',
         'file_extension': '.m',
-        "codemirror_mode": "Octave",
+        'version': __version__,
+        "codemirror_mode": "octave",
         'help_links': MetaKernel.help_links,
     }
 
@@ -26,8 +27,12 @@ class MatlabKernel(MetaKernel):
 
     def __init__(self, *args, **kwargs):
         super(MatlabKernel, self).__init__(*args, **kwargs)
-        executable = os.environ.get('MATLAB_EXECUTABLE', 'matlab')
-        self._matlab = Matlab(executable)
+        if 'OCTAVE_EXECUTABLE' in os.environ:
+            self._matlab = Octave(os.environ['OCTAVE_EXECUTABLE'])
+        else:
+            executable = os.environ.get('MATLAB_EXECUTABLE', 'matlab')
+            self._matlab = Matlab(executable)
+        self._matlab.start()
 
     def get_usage(self):
         return "This is the Matlab kernel."
@@ -55,7 +60,9 @@ class MatlabKernel(MetaKernel):
         if not resp['success']:
             self.Error(resp['content']['stdout'].strip())
         else:
-            return resp['content']['stdout'].strip() or None
+            stdout = resp['content']['stdout'].strip()
+            if stdout:
+                self.Print(stdout)
 
     def get_kernel_help_on(self, info, level=0, none_on_fail=False):
         obj = info.get('help_obj', '')
@@ -64,7 +71,19 @@ class MatlabKernel(MetaKernel):
                 return None
             else:
                 return ""
-        return self.do_execute_direct('help %s' % obj)
+        code = 'help %s' % obj
+        resp = self._matlab.run_code(code.strip())
+        return resp['content']['stdout'].strip() or None
+
+    def get_completions(self, info):
+        """
+        Get completions from kernel based on info dict.
+        """
+        if isinstance(self._matlab, Matlab):
+            return
+        code = 'completion_matches("%s")' % info['obj']
+        resp = self._matlab.run_code(code.strip())
+        return resp['content']['stdout'].strip().splitlines() or None
 
     def handle_plot_settings(self):
         """Handle the current plot settings"""
