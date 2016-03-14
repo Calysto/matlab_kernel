@@ -15,11 +15,10 @@ class MatlabKernel(MetaKernel):
     language_version = __version__,
     banner = "Matlab Kernel"
     language_info = {
-        'mimetype': 'text/x-matlab',
+        'mimetype': 'text/x-octave',
         'name': 'matlab',
         'file_extension': '.m',
         'version': __version__,
-        "codemirror_mode": "octave",
         'help_links': MetaKernel.help_links,
     }
 

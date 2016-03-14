@@ -15,7 +15,7 @@ kernel_json = {
              "-f", "{connection_file}"],
     "display_name": "Matlab",
     "language": "matlab",
-    "codemirror_mode": "octave",
+    "mimetype": "text/x-octave",
     "name": "matlab",
 }
 
