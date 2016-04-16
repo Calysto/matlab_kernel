@@ -1,11 +1,57 @@
 from __future__ import print_function
 
+from io import StringIO
 import os
+import sys
 from metakernel import MetaKernel
-from pymatbridge import Matlab, Octave
 from IPython.display import Image
+try:
+    import matlab.engine
+    from matlab.engine import MatlabExecutionError
+    matlab_native = True
+except ImportError:
+    from pymatbridge import Matlab, Octave
+    matlab_native = False
 
 from . import __version__
+
+
+class MatlabEngine(object):
+
+    def __init__(self):
+        if matlab_native:
+            self._engine = matlab.engine.start_matlab()
+            self.name = 'matlab'
+        if 'OCTAVE_EXECUTABLE' in os.environ:
+            self._engine = Octave(os.environ['OCTAVE_EXECUTABLE'])
+            self._engine.start()
+            self.name = 'octave'
+        else:
+            executable = os.environ.get('MATLAB_EXECUTABLE', 'matlab')
+            self._engine = Matlab(executable)
+            self._engine.start()
+            self.name = 'pymatbridge'
+
+    def run_code(self, code):
+        if matlab_native:
+            return self._run_native(code)
+        return self._engine.run_code(code)
+
+    def stop(self):
+        if matlab_native:
+            self._engine.exit()
+        else:
+            self._engine.stop()
+
+    def _run_native(self, code):
+        out = StringIO()
+        err = StringIO()
+        try:
+            self._engine.eval(code, nargout=0, stdout=out, stderr=err)
+        except (SyntaxError, MatlabExecutionError) as exc:
+            err, = exc.args
+            raise MatlabExecutionError(err.rstrip("\n"))
+        return out.getvalue()
 
 
 class MatlabKernel(MetaKernel):
@@ -26,12 +72,7 @@ class MatlabKernel(MetaKernel):
 
     def __init__(self, *args, **kwargs):
         super(MatlabKernel, self).__init__(*args, **kwargs)
-        if 'OCTAVE_EXECUTABLE' in os.environ:
-            self._matlab = Octave(os.environ['OCTAVE_EXECUTABLE'])
-        else:
-            executable = os.environ.get('MATLAB_EXECUTABLE', 'matlab')
-            self._matlab = Matlab(executable)
-        self._matlab.start()
+        self._matlab = MatlabEngine()
 
     def get_usage(self):
         return "This is the Matlab kernel."
@@ -39,9 +80,6 @@ class MatlabKernel(MetaKernel):
     def do_execute_direct(self, code):
         if self._first:
             self._first = False
-            fig_code = "set(0, 'defaultfigurepaperunits', 'inches');"
-            self._matlab.run_code(fig_code)
-            self._matlab.run_code("set(0, 'defaultfigureunits', 'inches');")
             self.handle_plot_settings()
 
         self.log.debug('execute: %s' % code)
@@ -49,7 +87,8 @@ class MatlabKernel(MetaKernel):
         self.log.debug('execute done')
         if 'stdout' not in resp['content']:
             raise ValueError(resp)
-        if 'figures' in resp['content']:
+        backend = self.plot_settings['backend']
+        if 'figures' in resp['content'] and backend == 'inline':
             for fname in resp['content']['figures']:
                 try:
                     im = Image(filename=fname)
@@ -87,7 +126,8 @@ class MatlabKernel(MetaKernel):
     def handle_plot_settings(self):
         """Handle the current plot settings"""
         settings = self.plot_settings
-        settings.setdefault('size', '560,420')
+        settings.setdefault('size', (560, 420))
+        settings.setdefault('backend', 'inline')
 
         width, height = 560, 420
         if isinstance(settings['size'], tuple):
@@ -96,11 +136,23 @@ class MatlabKernel(MetaKernel):
             try:
                 width, height = settings['size'].split(',')
                 width, height = int(width), int(height)
+                settings['size'] = width, height
             except Exception as e:
                 self.Error(e)
 
-        size = "set(0, 'defaultfigurepaperposition', [0 0 %s %s])\n;"
-        self.do_execute_direct(size % (width / 150., height / 150.))
+        if settings['backend'] == 'inline':
+            code = ["set(0, 'defaultfigurevisible', 'off')"]
+        else:
+            code = ["set(0, 'defaultfigurevisible', 'on')"]
+        size = "set(0, 'defaultfigurepaperposition', [0 0 %s %s])"
+        code += ["set(0, 'defaultfigurepaperunits', 'inches')",
+                 "set(0, 'defaultfigureunits', 'inches')",
+                 size % (int(width) / 150., int(height) / 150.)]
+        if sys.platform == 'darwin' and self._matlab.name == 'octave':
+            code + ['setenv("GNUTERM", "X11")']
+            if settings['backend'] != 'inline':
+                code += ["graphics_toolkit('%s');" % settings['backend']]
+        self._matlab.run_code(';'.join(code))
 
     def repr(self, obj):
         return obj
