@@ -1,8 +1,11 @@
 from __future__ import print_function
 
-from io import StringIO
 import os
 import sys
+if sys.version_info[0] < 3:
+    from StringIO import StringIO
+else:
+    from io import StringIO
 from metakernel import MetaKernel
 from IPython.display import Image
 try:
@@ -46,6 +49,8 @@ class MatlabEngine(object):
     def _run_native(self, code):
         out = StringIO()
         err = StringIO()
+        if sys.version_info[0] < 3:
+            code = str(code)
         try:
             self._engine.eval(code, nargout=0, stdout=out, stderr=err)
         except (SyntaxError, MatlabExecutionError) as exc:
