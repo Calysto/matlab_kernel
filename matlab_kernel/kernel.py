@@ -51,7 +51,7 @@ class MatlabEngine(object):
         except (SyntaxError, MatlabExecutionError) as exc:
             err, = exc.args
             raise MatlabExecutionError(err.rstrip("\n"))
-        return out.getvalue()
+        return dict(success=True, content=dict(stdout=out.getvalue()))
 
 
 class MatlabKernel(MetaKernel):
