@@ -1,3 +1,3 @@
 """A Matlab kernel for Jupyter"""
 
-__version__ = '0.9.0'
+__version__ = '0.9.1'
