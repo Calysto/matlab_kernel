@@ -19,13 +19,13 @@ from . import __version__
 class MatlabEngine(object):
 
     def __init__(self):
-        if matlab_native:
-            self._engine = matlab.engine.start_matlab()
-            self.name = 'matlab'
         if 'OCTAVE_EXECUTABLE' in os.environ:
             self._engine = Octave(os.environ['OCTAVE_EXECUTABLE'])
             self._engine.start()
             self.name = 'octave'
+        elif matlab_native:
+            self._engine = matlab.engine.start_matlab()
+            self.name = 'matlab'
         else:
             executable = os.environ.get('MATLAB_EXECUTABLE', 'matlab')
             self._engine = Matlab(executable)
