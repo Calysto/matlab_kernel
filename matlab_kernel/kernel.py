@@ -34,6 +34,11 @@ class MatlabEngine(object):
             self._engine = Matlab(executable)
             self._engine.start()
             self.name = 'pymatbridge'
+        # add MATLAB-side helper functions to MATLAB's path
+        if self.name != 'octave':
+            kernel_path = os.path.dirname(os.path.realpath(__file__))
+            toolbox_path = os.path.join(kernel_path, 'toolbox')
+            self.run_code("addpath('%s');" % toolbox_path)
 
     def run_code(self, code):
         if matlab_native:
@@ -121,11 +126,12 @@ class MatlabKernel(MetaKernel):
         """
         Get completions from kernel based on info dict.
         """
-        if isinstance(self._matlab, Matlab):
-            return
-        code = 'completion_matches("%s")' % info['obj']
+        if self._matlab.name != 'octave':
+            code = "do_matlab_complete('%s')" % info['obj']
+        else:
+            code = 'do_complete("%s")' % info['obj']
         resp = self._matlab.run_code(code.strip())
-        return resp['content']['stdout'].strip().splitlines() or None
+        return resp['content']['stdout'].strip().splitlines() or []
 
     def handle_plot_settings(self):
         """Handle the current plot settings"""
