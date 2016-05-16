@@ -154,10 +154,12 @@ class MatlabKernel(MetaKernel):
             code = ["set(0, 'defaultfigurevisible', 'off')"]
         else:
             code = ["set(0, 'defaultfigurevisible', 'on')"]
-        size = "set(0, 'defaultfigurepaperposition', [0 0 %s %s])"
+        paper_size = "set(0, 'defaultfigurepaperposition', [0 0 %s %s])"
+        figure_size = "set(0, 'defaultfigureposition', [0 0 %s %s])"
         code += ["set(0, 'defaultfigurepaperunits', 'inches')",
                  "set(0, 'defaultfigureunits', 'inches')",
-                 size % (int(width) / 150., int(height) / 150.)]
+                 paper_size % (int(width) / 150., int(height) / 150.),
+                 figure_size % (int(width) / 150., int(height) / 150.)]
         if sys.platform == 'darwin' and self._matlab.name == 'octave':
             code + ['setenv("GNUTERM", "X11")']
             if settings['backend'] != 'inline':
