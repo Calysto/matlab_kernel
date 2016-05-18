@@ -3,12 +3,10 @@ function do_matlab_complete(substring)
 %   do_matlab_complete(substring) prints out the tab completion options for the
 %   string `substring`, one per line. This required evaluating some undocumented
 %   internal matlab code in the "base" workspace.
-
-% only tested on R2014b and R2015a
-v = ver('MATLAB');
-if str2num(v) < 8.4
-    return
-end
+% 
+%	Only MATLAB versions R2013a, R2014b, and R2015a were available for testing.
+%	This function is probably incompatible with some or many other releases, as
+%	the undocumented features it relies on are subject to change without notice.
 
 % grep'ing MATLAB R2014b for "tabcomplet" and dumping the symbols of the ELF
 % files that match suggests that the internal tab completion is implemented in
@@ -18,19 +16,35 @@ end
 % conventions that this function can be accessed as a method of
 % com.matlab.jmi.MatlabMCR objects.
 
-% some trial and error reveals the likely function signature
-% function mtFindAllTabCompletions(String substring, int len, int offset)
-% where `substring` is the string to be completed, `len` is the length of the
-% string, and the first `offset` values returned by the engine are ignored.
-len = num2str(length(substring));
-offset = num2str(0);
+% Trial and error reveals likely function signatures for certain MATLAB versions
+% R2014b and R2015a:
+% 	mtFindAllTabCompletions(String substring, int len, int offset)
+%	where `substring` is the string to be completed, `len` is the length of the
+%	string, and the first `offset` values returned by the engine are ignored.
+% R2013a:
+%	mtFindAllTabCompletions(String substring, int offset [optional])
+
+len = length(substring);
+offset = 0;
+
+if verLessThan('MATLAB','8.4')
+    % verified for R2013a
+    args = sprintf('''%s'', %g', substring, offset);
+else
+    % verified for R2014b, 2015a
+	args = sprintf('''%s'', %g, %g', substring, len, offset);
+end
+
 
 get_completions = [ ...
     'matlabMCRinstance_avoid_name_collisions = com.mathworks.jmi.MatlabMCR;' ...
-    'completions_output = matlabMCRinstance_avoid_name_collisions.mtFindAllTabCompletions(''' ...
-    substring ''', ' len ', ' offset ');' ...
+    'completions_output = matlabMCRinstance_avoid_name_collisions.mtFindAllTabCompletions(' ...
+    args ');' ...
     'for i=1:length(completions_output);' ...
     '    fprintf(1, ''%s\n'', char(completions_output(i)));' ...
     'end;' ...
     'clear(''matlabMCRinstance_avoid_name_collisions'', ''completions_output'');' ];
-evalin('base', get_completions);
+
+try
+    evalin('base', get_completions);
+end
