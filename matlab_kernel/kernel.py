@@ -52,15 +52,32 @@ class MatlabEngine(object):
             self._engine.stop()
 
     def _run_native(self, code):
+        resp = dict(success=True, content=dict())
         out = StringIO()
         err = StringIO()
         if sys.version_info[0] < 3:
             code = str(code)
         try:
             self._engine.eval(code, nargout=0, stdout=out, stderr=err)
+            self._engine.eval('''
+                figures = {};
+                handles = get(0, 'children');
+                for hi = 1:length(handles)
+                    datadir = fullfile(tempdir(), 'MatlabData');
+                    if ~exist(datadir, 'dir'); mkdir(datadir); end
+                    figures{hi} = [fullfile(datadir, ['MatlabFig', sprintf('%03d', hi)]), '.png'];
+                    saveas(handles(hi), figures{hi});
+                    if (strcmp(get(handles(hi), 'visible'), 'off')); close(handles(hi)); end
+                end''', nargout=0, stdout=out, stderr=err)
+            figures = self._engine.workspace['figures']
         except (SyntaxError, MatlabExecutionError) as exc:
-            return dict(success=False, content=dict(stdout=exc.args[0]))
-        return dict(success=True, content=dict(stdout=out.getvalue()))
+            resp['content']['stdout'] = exc.args[0]
+            resp['success'] = False
+        else:
+            resp['content']['stdout'] = out.getvalue()
+            if figures:
+                resp['content']['figures'] = figures
+        return resp
 
 
 class MatlabKernel(MetaKernel):
