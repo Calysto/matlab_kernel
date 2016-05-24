@@ -88,6 +88,7 @@ class MatlabKernel(MetaKernel):
     banner = "Matlab Kernel"
     language_info = {
         'mimetype': 'text/x-octave',
+        'codemirror_mode': 'octave',
         'name': 'matlab',
         'file_extension': '.m',
         'version': __version__,
