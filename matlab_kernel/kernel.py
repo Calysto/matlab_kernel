@@ -94,6 +94,14 @@ class MatlabKernel(MetaKernel):
         'version': __version__,
         'help_links': MetaKernel.help_links,
     }
+    kernel_json = {
+        "argv": [
+            sys.executable, "-m", "matlab_kernel", "-f", "{connection_file}"],
+        "display_name": "Matlab",
+        "language": "matlab",
+        "mimetype": "text/x-octave",
+        "name": "matlab",
+    }
 
     _first = True
 
