@@ -1,12 +1,14 @@
 A Jupyter/IPython kernel for Matlab
 
 
-This requires `Jupyter Notebook <http://jupyter.readthedocs.org/en/latest/install.html>`_, and `pymatbridge <http://pypi.python.org/pypi/pymatbridge>`_.
+This requires `Jupyter Notebook <http://jupyter.readthedocs.org/en/latest/install.html>`_,
+and either `pymatbridge <http://pypi.python.org/pypi/pymatbridge>`_, or the
+`Matlab engine for Python <http://http://www.mathworks.com/help/matlab/matlab-engine-for-python.html>`_.
 
 To install::
 
     pip install matlab_kernel
-    python -m matlab_kernel.install
+    python -m matlab_kernel install
 
 To use it, run one of:
 
@@ -22,7 +24,8 @@ which means it features a standard set of magics.
 
 A sample notebook is available online_.
 
-You can specify the path to your matlab executable by creating a `MATLAB_EXECUTABLE` environmental variable::
+If using `pymatbridge`, you can specify the path to your Matlab executable by
+creating a `MATLAB_EXECUTABLE` environment variable::
 
    MATLAB_EXECUTABLE=/usr/bin/matlab
    ipython notebook --kernel=matlab_kernel
