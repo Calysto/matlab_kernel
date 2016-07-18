@@ -3,7 +3,7 @@ A Jupyter/IPython kernel for Matlab
 
 This requires `Jupyter Notebook <http://jupyter.readthedocs.org/en/latest/install.html>`_,
 and either `pymatbridge <http://pypi.python.org/pypi/pymatbridge>`_, or the
-`Matlab engine for Python <http://http://www.mathworks.com/help/matlab/matlab-engine-for-python.html>`_.
+`Matlab engine for Python <https://www.mathworks.com/help/matlab/matlab-engine-for-python.html>`_.
 
 To install::
 
