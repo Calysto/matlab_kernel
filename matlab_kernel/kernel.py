@@ -8,13 +8,19 @@ else:
     from io import StringIO
 from metakernel import MetaKernel
 from IPython.display import Image
-try:
-    import matlab.engine
-    from matlab.engine import MatlabExecutionError
-    matlab_native = True
-except ImportError:
-    from pymatbridge import Matlab, Octave
+
+# Import the correct engine
+if 'OCTAVE_EXECUTABLE' in os.environ:
+    from pymatbridge import Octave
     matlab_native = False
+else:
+    try:
+        import matlab.engine
+        from matlab.engine import MatlabExecutionError
+        matlab_native = True
+    except ImportError:
+        from pymatbridge import Matlab
+        matlab_native = False
 
 from . import __version__
 
@@ -155,7 +161,7 @@ class MatlabKernel(MetaKernel):
         if self._matlab.name != 'octave':
             code = "do_matlab_complete('%s')" % info['obj']
         else:
-            code = 'do_complete("%s")' % info['obj']
+            code = 'completion_matches("%s")' % info['obj']
         resp = self._matlab.run_code(code.strip())
         return resp['content']['stdout'].strip().splitlines() or []
 
