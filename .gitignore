@@ -1,7 +1,7 @@
-.ipynb_checkpoints/
-MANIFEST
-dist/
-build/
 *.egg-info/
-__pycache__
+.cache/
+.ipynb_checkpoints/
+build/
+dist/
 *.pyc
+.*.swp
