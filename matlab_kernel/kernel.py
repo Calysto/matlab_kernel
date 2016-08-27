@@ -19,8 +19,12 @@ else:
         from matlab.engine import MatlabExecutionError
         matlab_native = True
     except ImportError:
-        from pymatbridge import Matlab
-        matlab_native = False
+        try:
+            from pymatbridge import Matlab
+            matlab_native = False
+        except ImportError:
+            raise ImportError(
+                "Neither MATLAB native engine nor pymatbridge are available")
 
 from . import __version__
 
