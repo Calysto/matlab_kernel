@@ -187,9 +187,12 @@ class MatlabKernel(MetaKernel):
 
     def restart_kernel(self):
         self._matlab.exit()
+        self._matlab = matlab.engine.start_matlab()
+        self._first = True
 
     def do_shutdown(self, restart):
         self._matlab.exit()
+        return super(MatlabKernel, self).do_shutdown(restart)
 
 
 if __name__ == '__main__':
