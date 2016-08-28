@@ -1,11 +1,14 @@
-from __future__ import print_function
+from __future__ import division, print_function
 
 import os
+import shutil
 import sys
+import tempfile
 if sys.version_info[0] < 3:
     from StringIO import StringIO
 else:
     from io import StringIO
+
 from metakernel import MetaKernel
 from IPython.display import Image
 
@@ -13,48 +16,6 @@ import matlab.engine
 from matlab.engine import MatlabExecutionError
 
 from . import __version__
-
-
-class MatlabEngine(object):
-
-    def __init__(self):
-        self._engine = matlab.engine.start_matlab()
-        self.name = "matlab"
-        # add MATLAB-side helper functions to MATLAB's path
-        kernel_path = os.path.dirname(os.path.realpath(__file__))
-        toolbox_path = os.path.join(kernel_path, "toolbox")
-        self.run_code("addpath('%s');" % toolbox_path)
-
-    def run_code(self, code):
-        resp = dict(success=True, content=dict())
-        out = StringIO()
-        err = StringIO()
-        if sys.version_info[0] < 3:
-            code = str(code)
-        try:
-            self._engine.eval(code, nargout=0, stdout=out, stderr=err)
-            self._engine.eval("""
-                figures = {};
-                handles = get(0, 'children');
-                for hi = 1:length(handles)
-                    datadir = fullfile(tempdir(), 'MatlabData');
-                    if ~exist(datadir, 'dir'); mkdir(datadir); end
-                    figures{hi} = [fullfile(datadir, ['MatlabFig', sprintf('%03d', hi)]), '.png'];
-                    saveas(handles(hi), figures{hi});
-                    if (strcmp(get(handles(hi), 'visible'), 'off')); close(handles(hi)); end
-                end""", nargout=0, stdout=out, stderr=err)
-            figures = self._engine.workspace["figures"]
-        except (SyntaxError, MatlabExecutionError) as exc:
-            resp["content"]["stdout"] = exc.args[0]
-            resp["success"] = False
-        else:
-            resp["content"]["stdout"] = out.getvalue()
-            if figures:
-                resp["content"]["figures"] = figures
-        return resp
-
-    def stop(self):
-        self._engine.exit()
 
 
 class MatlabKernel(MetaKernel):
@@ -80,11 +41,16 @@ class MatlabKernel(MetaKernel):
         "name": "matlab",
     }
 
-    _first = True
-
     def __init__(self, *args, **kwargs):
         super(MatlabKernel, self).__init__(*args, **kwargs)
-        self._matlab = MatlabEngine()
+        self._matlab = matlab.engine.start_matlab()
+        self._first = True
+        self._validated_plot_settings = {
+            "backend": "inline",
+            "size": (560, 420),
+            "format": "png",
+            "resolution": 96,
+        }
 
     def get_usage(self):
         return "This is the Matlab kernel."
@@ -92,84 +58,138 @@ class MatlabKernel(MetaKernel):
     def do_execute_direct(self, code):
         if self._first:
             self._first = False
+            self._validated_plot_settings["size"] = tuple(
+                self._matlab.get(0., "defaultfigureposition")[0][2:])
             self.handle_plot_settings()
 
-        self.log.debug("execute: %s" % code)
-        resp = self._matlab.run_code(code.strip())
-        self.log.debug("execute done")
-        if "stdout" not in resp["content"]:
-            raise ValueError(resp)
-        backend = self.plot_settings["backend"]
-        if "figures" in resp["content"] and backend == "inline":
-            for fname in resp["content"]["figures"]:
+        out = StringIO()
+        err = StringIO()
+        try:
+            self._matlab.eval(code, nargout=0, stdout=out, stderr=err)
+        except (SyntaxError, MatlabExecutionError) as exc:
+            stdout = exc.args[0]
+            self.Error(stdout)
+            return
+        stdout = out.getvalue()
+        self.Print(stdout)
+
+        settings = self._validated_plot_settings
+        if settings["backend"] == "inline":
+            nfig = len(self._matlab.get(0., "children"))
+            if nfig:
+                tmpdir = tempfile.mkdtemp()
                 try:
-                    im = Image(filename=fname)
-                    self.Display(im)
-                except Exception as e:
-                    self.Error(e)
-        if not resp["success"]:
-            self.Error(resp["content"]["stdout"].strip())
-        else:
-            stdout = resp["content"]["stdout"].strip()
-            if stdout:
-                self.Print(stdout)
+                    self._matlab.eval(
+                        "arrayfun("
+                            "@(h, i) print(h, sprintf('{}/%i', i), '-d{}', '-r{}'),"
+                            "get(0, 'children'), (1:{})')"
+                        .format(tmpdir, settings["format"], settings["resolution"], nfig),
+                        nargout=0)
+                    self._matlab.eval(
+                        "arrayfun(@(h) close(h), get(0, 'children'))",
+                        nargout=0)
+                    for fname in sorted(os.listdir(tmpdir)):
+                        self.Display(Image(
+                            filename="{}/{}".format(tmpdir, fname)))
+                except Exception as exc:
+                    self.Error(exc)
+                finally:
+                    shutil.rmtree(tmpdir)
 
     def get_kernel_help_on(self, info, level=0, none_on_fail=False):
-        obj = info.get("help_obj", "")
-        if not obj or len(obj.split()) > 1:
-            if none_on_fail:
-                return None
-            else:
-                return ""
-        code = "help %s" % obj
-        resp = self._matlab.run_code(code.strip())
-        return resp["content"]["stdout"].strip() or None
+        name = info.get("help_obj", "")
+        out = StringIO()
+        self._matlab.help(name, nargout=0, stdout=out)
+        return out.getvalue()
 
     def get_completions(self, info):
+        """Get completions from kernel based on info dict.
         """
-        Get completions from kernel based on info dict.
-        """
-        code = "do_matlab_complete('%s')" % info['obj']
-        resp = self._matlab.run_code(code.strip())
-        return resp["content"]["stdout"].strip().splitlines() or []
+
+        # Only MATLAB versions R2013a, R2014b, and R2015a were available for
+        # testing.  This function is probably incompatible with some or many
+        # other releases, as the undocumented features it relies on are subject
+        # to change without notice.
+
+        # grep'ing MATLAB R2014b for "tabcomplet" and dumping the symbols of
+        # the ELF files that match suggests that the internal tab completion
+        # is implemented in bin/glnxa64/libmwtabcompletion.so and called
+        # from /bin/glnxa64/libnativejmi.so, which contains the function
+        # mtFindAllTabCompletions. We can infer from MATLAB's undocumented
+        # naming conventions that this function can be accessed as a method of
+        # com.matlab.jmi.MatlabMCR objects.
+
+        # Trial and error reveals likely function signatures for certain MATLAB
+        # versions.
+        # R2014b and R2015a:
+        #   mtFindAllTabCompletions(String substring, int len, int offset)
+        #   where `substring` is the string to be completed, `len` is the
+        #   length of the string, and the first `offset` values returned by the
+        #   engine are ignored.
+        # R2013a (not supported due to lack of Python engine):
+        #   mtFindAllTabCompletions(String substring, int offset [optional])
+
+        name = info["obj"]
+        compls = self._matlab.eval(
+            "cell(com.mathworks.jmi.MatlabMCR()."
+                 "mtFindAllTabCompletions('{}', {}, 0))"
+            .format(name, len(name)))
+
+        # For structs, we need to return `structname.fieldname` instead of just
+        # `fieldname`, which `mtFindAllTabCompletions` does.
+
+        if "." in name:
+            prefix, _ = name.rsplit(".", 1)
+            if self._matlab.eval("isstruct({})".format(prefix)):
+                compls = ["{}.{}".format(prefix, compl) for compl in compls]
+
+        return compls
 
     def handle_plot_settings(self):
-        """Handle the current plot settings"""
-        settings = self.plot_settings
-        settings.setdefault("size", (560, 420))
-        settings.setdefault("backend", "inline")
+        raw = self.plot_settings
+        settings = self._validated_plot_settings
 
-        width, height = 560, 420
-        if isinstance(settings["size"], tuple):
-            width, height = settings["size"]
-        elif settings["size"]:
+        backends = {"inline": "off", "native": "on"}
+        backend = raw.get("backend")
+        if backend is not None:
+            if backend not in backends:
+                self.Error("Invalid backend, should be one of {}"
+                           .format(sorted(list(backends))))
+            else:
+                settings["backend"] = backend
+
+        size = raw.get("size")
+        if size is not None:
             try:
-                width, height = settings["size"].split(",")
-                width, height = int(width), int(height)
-                settings["size"] = width, height
-            except Exception as e:
-                self.Error(e)
+                width, height = size
+            except Exception as exc:
+                self.Error(exc)
+            else:
+                settings["size"] = size
 
-        if settings["backend"] == "inline":
-            code = ["set(0, 'defaultfigurevisible', 'off')"]
-        else:
-            code = ["set(0, 'defaultfigurevisible', 'on')"]
-        paper_size = "set(0, 'defaultfigurepaperposition', [0 0 %s %s])"
-        figure_size = "set(0, 'defaultfigureposition', [0 0 %s %s])"
-        code += ["set(0, 'defaultfigurepaperunits', 'inches')",
-                 "set(0, 'defaultfigureunits', 'inches')",
-                 paper_size % (int(width) / 150., int(height) / 150.),
-                 figure_size % (int(width) / 150., int(height) / 150.)]
-        self._matlab.run_code(";".join(code))
+        resolution = raw.get("resolution")
+        if resolution is not None:
+            settings["resolution"] = resolution
+
+        backend = settings["backend"]
+        width, height = settings["size"]
+        resolution = settings["resolution"]
+        for k, v in {
+                "defaultfigurevisible": backends[backend],
+                "defaultfigurepaperpositionmode": "manual",
+                "defaultfigurepaperposition":
+                    matlab.double([0, 0, width / resolution, height / resolution]),
+                "defaultfigurepaperunits": "inches"}.items():
+            self._matlab.set(0., k, v, nargout=0)
 
     def repr(self, obj):
         return obj
 
     def restart_kernel(self):
-        self._matlab.stop()
+        self._matlab.exit()
 
     def do_shutdown(self, restart):
-        self._matlab.stop()
+        self._matlab.exit()
 
 
 if __name__ == '__main__':
