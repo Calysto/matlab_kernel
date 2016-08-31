@@ -1,5 +1,6 @@
 from __future__ import division, print_function
 
+from functools import partial
 import os
 import shutil
 import sys
@@ -9,13 +10,19 @@ if sys.version_info[0] < 3:
 else:
     from io import StringIO
 
-from metakernel import MetaKernel
 from IPython.display import Image
+from metakernel import MetaKernel
+from wurlitzer import Wurlitzer
 
 import matlab.engine
 from matlab.engine import MatlabExecutionError
 
 from . import __version__
+
+
+class _PseudoStream:
+    def __init__(self, writer):
+        self.write = writer
 
 
 class MatlabKernel(MetaKernel):
@@ -62,16 +69,12 @@ class MatlabKernel(MetaKernel):
                 self._matlab.get(0., "defaultfigureposition")[0][2:])
             self.handle_plot_settings()
 
-        out = StringIO()
-        err = StringIO()
-        try:
-            self._matlab.eval(code, nargout=0, stdout=out, stderr=err)
-        except (SyntaxError, MatlabExecutionError) as exc:
-            stdout = exc.args[0]
-            self.Error(stdout)
-            return
-        stdout = out.getvalue()
-        self.Print(stdout)
+        with Wurlitzer(_PseudoStream(partial(self.Print, end="")),
+                       _PseudoStream(partial(self.Error, end=""))):
+            try:
+                self._matlab.eval(code, nargout=0)
+            except (SyntaxError, MatlabExecutionError):
+                return
 
         settings = self._validated_plot_settings
         if settings["backend"] == "inline":
