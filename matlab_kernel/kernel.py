@@ -1,14 +1,10 @@
-from __future__ import division, print_function
-
+from concurrent.futures import ThreadPoolExecutor
 from functools import partial
+from io import StringIO
 import os
 import shutil
 import sys
 import tempfile
-if sys.version_info[0] < 3:
-    from StringIO import StringIO
-else:
-    from io import StringIO
 
 from IPython.display import Image
 from metakernel import MetaKernel
@@ -69,12 +65,14 @@ class MatlabKernel(MetaKernel):
                 self._matlab.get(0., "defaultfigureposition")[0][2:])
             self.handle_plot_settings()
 
-        with Wurlitzer(_PseudoStream(partial(self.Print, end="")),
-                       _PseudoStream(partial(self.Error, end=""))):
-            try:
-                self._matlab.eval(code, nargout=0)
-            except (SyntaxError, MatlabExecutionError):
-                return
+        try:
+            with Wurlitzer(_PseudoStream(partial(self.Print, end="")),
+                           _PseudoStream(partial(self.Error, end=""))), \
+                    ThreadPoolExecutor(1) as executor:
+                future = self._matlab.eval(code, nargout=0, async=True)
+                executor.submit(future.result)
+        except (SyntaxError, MatlabExecutionError, KeyboardInterrupt):
+            pass
 
         settings = self._validated_plot_settings
         if settings["backend"] == "inline":
