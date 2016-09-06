@@ -2,9 +2,9 @@ from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 from io import StringIO
 import os
-import shutil
+from pathlib import Path
 import sys
-import tempfile
+from tempfile import TemporaryDirectory
 
 from IPython.display import Image
 from metakernel import MetaKernel
@@ -78,24 +78,25 @@ class MatlabKernel(MetaKernel):
         if settings["backend"] == "inline":
             nfig = len(self._matlab.get(0., "children"))
             if nfig:
-                tmpdir = tempfile.mkdtemp()
-                try:
-                    self._matlab.eval(
-                        "arrayfun("
-                            "@(h, i) print(h, sprintf('{}/%i', i), '-d{}', '-r{}'),"
-                            "get(0, 'children'), (1:{})')"
-                        .format(tmpdir, settings["format"], settings["resolution"], nfig),
-                        nargout=0)
-                    self._matlab.eval(
-                        "arrayfun(@(h) close(h), get(0, 'children'))",
-                        nargout=0)
-                    for fname in sorted(os.listdir(tmpdir)):
-                        self.Display(Image(
-                            filename="{}/{}".format(tmpdir, fname)))
-                except Exception as exc:
-                    self.Error(exc)
-                finally:
-                    shutil.rmtree(tmpdir)
+                with TemporaryDirectory() as tmpdir:
+                    try:
+                        self._matlab.eval(
+                            "arrayfun("
+                                "@(h, i) print(h, sprintf('{}/%i', i), '-d{}', '-r{}'),"
+                                "get(0, 'children'), (1:{})')".format(
+                                    tmpdir,
+                                    settings["format"],
+                                    settings["resolution"],
+                                    nfig),
+                            nargout=0)
+                        self._matlab.eval(
+                            "arrayfun(@(h) close(h), get(0, 'children'))",
+                            nargout=0)
+                        for fname in sorted(os.listdir(tmpdir)):
+                            self.Display(Image(
+                                filename="{}/{}".format(tmpdir, fname)))
+                    except Exception as exc:
+                        self.Error(exc)
 
     def get_kernel_help_on(self, info, level=0, none_on_fail=False):
         name = info.get("help_obj", "")
@@ -145,6 +146,19 @@ class MatlabKernel(MetaKernel):
                 compls = ["{}.{}".format(prefix, compl) for compl in compls]
 
         return compls
+
+    def do_is_complete(self, code):
+        if self.parse_code(code)["magic"]:
+            return {"status": "complete"}
+        with TemporaryDirectory() as tmpdir:
+            Path(tmpdir, "test_complete.m").write_text(code)
+            self._matlab.eval(
+                "try, pcode {} -inplace; catch, end".format(tmpdir),
+                nargout=0)
+            if Path(tmpdir, "test_complete.p").exists():
+                return {"status": "complete"}
+            else:
+                return {"status": "incomplete"}
 
     def handle_plot_settings(self):
         raw = self.plot_settings
