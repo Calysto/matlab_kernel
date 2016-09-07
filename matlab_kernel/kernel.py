@@ -45,6 +45,8 @@ class MatlabKernel(MetaKernel):
 
     def __init__(self, *args, **kwargs):
         super(MatlabKernel, self).__init__(*args, **kwargs)
+        self.parser.escape_path = (
+            lambda path: "'{}'".format(path.replace("'", "''")))
         self._matlab = matlab.engine.start_matlab()
         self._first = True
         self._validated_plot_settings = {
