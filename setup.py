@@ -20,6 +20,5 @@ if __name__ == "__main__":
                        "Programming Language :: Python :: 3.5",
                        "Topic :: System :: Shells",],
           packages=find_packages(include=["matlab_kernel", "matlab_kernel.*"]),
-          install_requires=["metakernel>=0.13.1",
-                            "wurlitzer>=0.2.0",],
+          install_requires=["metakernel>=0.13.1"],
           )
