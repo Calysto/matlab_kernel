@@ -8,12 +8,12 @@ from tempfile import TemporaryDirectory
 
 from IPython.display import Image
 from metakernel import MetaKernel
-from wurlitzer import Wurlitzer
 
 import matlab.engine
 from matlab.engine import MatlabExecutionError
 
 from . import __version__
+from .wurlitzer import Wurlitzer
 
 
 class _PseudoStream:
