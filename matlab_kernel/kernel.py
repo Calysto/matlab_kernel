@@ -1,4 +1,3 @@
-from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 from io import StringIO
 import os
@@ -67,10 +66,9 @@ class MatlabKernel(MetaKernel):
 
         try:
             with Wurlitzer(_PseudoStream(partial(self.Print, end="")),
-                           _PseudoStream(partial(self.Error, end=""))), \
-                    ThreadPoolExecutor(1) as executor:
+                           _PseudoStream(partial(self.Error, end=""))):
                 future = self._matlab.eval(code, nargout=0, async=True)
-                executor.submit(future.result)
+                future.result()
         except (SyntaxError, MatlabExecutionError, KeyboardInterrupt):
             pass
 
