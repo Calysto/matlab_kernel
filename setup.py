@@ -5,8 +5,8 @@ import versioneer
 
 
 if __name__ == "__main__":
-    if sys.version_info < (3, 5):
-        raise ImportError("matlab_kernel requires Python>=3.5")
+    if sys.version_info.major < 3:
+        raise ImportError("matlab_kernel requires Python>=3.3")
 
     setup(name="matlab_kernel",
           author="Steven Silvester, Antony Lee",

@@ -1,12 +1,12 @@
 |Python35|
 
-.. |Python35| image:: https://img.shields.io/badge/python-3.5-blue.svg
+.. |Python35| image:: https://img.shields.io/badge/python-3.x-blue.svg
 
 A Jupyter/IPython kernel for Matlab
 ===================================
 
 This requires `Jupyter Notebook <http://jupyter.readthedocs.org/en/latest/install.html>`_
-with Python 3.5, and the
+with Python 3.x, and the
 `Matlab engine for Python <https://www.mathworks.com/help/matlab/matlab-engine-for-python.html>`_.
 
 To install::
