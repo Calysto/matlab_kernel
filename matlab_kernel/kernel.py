@@ -11,13 +11,7 @@ from metakernel import MetaKernel
 import matlab.engine
 from matlab.engine import MatlabExecutionError
 
-from . import __version__
-from .wurlitzer import Wurlitzer
-
-
-class _PseudoStream:
-    def __init__(self, writer):
-        self.write = writer
+from . import redirection, __version__
 
 
 class MatlabKernel(MetaKernel):
@@ -64,9 +58,14 @@ class MatlabKernel(MetaKernel):
                 self._matlab.get(0., "defaultfigureposition")[0][2:])
             self.handle_plot_settings()
 
+        redirect_stdin = redirection.redirect(
+            sys.__stdout__.fileno(),
+            lambda s: self.Print(s.decode(sys.__stdout__.encoding), end=""))
+        redirect_stderr = redirection.redirect(
+            sys.__stderr__.fileno(),
+            lambda s: self.Error(s.decode(sys.__stderr__.encoding), end=""))
         try:
-            with Wurlitzer(_PseudoStream(partial(self.Print, end="")),
-                           _PseudoStream(partial(self.Error, end=""))):
+            with redirect_stdin, redirect_stderr:
                 future = self._matlab.eval(code, nargout=0, async=True)
                 future.result()
         except (SyntaxError, MatlabExecutionError, KeyboardInterrupt):
