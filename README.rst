@@ -14,7 +14,7 @@ To install::
     $ pip install matlab_kernel
     # or `pip install git+https://github.com/Calysto/matlab_kernel`
     # for the devel version.
-    $ python -m matlab_kernel.install
+    $ python -m matlab_kernel install
 
 To use it, run one of::
 
