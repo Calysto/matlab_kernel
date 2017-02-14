@@ -45,7 +45,10 @@ class MatlabKernel(MetaKernel):
 
     def __init__(self, *args, **kwargs):
         super(MatlabKernel, self).__init__(*args, **kwargs)
-        self._matlab = matlab.engine.start_matlab()
+        try:
+            self._matlab = matlab.engine.start_matlab()
+        except matlab.engine.EngineError:
+            self._matlab = matlab.engine.connect_matlab()
         self._first = True
         self._validated_plot_settings = {
             "backend": "inline",
@@ -200,7 +203,13 @@ class MatlabKernel(MetaKernel):
 
     def restart_kernel(self):
         self._matlab.exit()
-        self._matlab = matlab.engine.start_matlab()
+        try:
+            self._matlab = matlab.engine.start_matlab()
+        except matlab.engine.EngineError:
+            # This isn't a true restart
+            self._matlab = None  # disconnect from engine
+            self._matlab = matlab.engine.connect_matlab()  # re-connect
+            self._matlab.clear('all')  # clear all content 
         self._first = True
 
     def do_shutdown(self, restart):
