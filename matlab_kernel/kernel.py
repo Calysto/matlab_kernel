@@ -182,6 +182,11 @@ class MatlabKernel(MetaKernel):
                 self.Error(exc)
             else:
                 settings["size"] = size
+        if "width" in raw:
+            width, height = settings["size"]
+            raw.setdefault("width", width)
+            raw.setdefault("height", height)
+            settings["size"] = (raw["width"], raw["height"])
 
         resolution = raw.get("resolution")
         if resolution is not None:
