@@ -1,13 +1,9 @@
-import sys
 
 from setuptools import setup, find_packages
 import versioneer
 
 
 if __name__ == "__main__":
-    if sys.version_info < (3, 4):
-        raise ImportError("matlab_kernel requires Python>=3.4")
-
     setup(name="matlab_kernel",
           author="Steven Silvester, Antony Lee",
           version=versioneer.get_version(),
@@ -19,7 +15,12 @@ if __name__ == "__main__":
                        "License :: OSI Approved :: BSD License",
                        "Programming Language :: Python :: 3.4",
                        "Programming Language :: Python :: 3.5",
-                       "Topic :: System :: Shells",],
+                       "Topic :: System :: Shells"],
           packages=find_packages(include=["matlab_kernel", "matlab_kernel.*"]),
-          install_requires=["metakernel>=0.13.1"],
+          requires=["metakernel (>0.18.0)", "jupyter_client (>=4.4.0)",
+                    "pathlib", 'ipython (>=4.0.0)'],
+          install_requires=["metakernel>=0.18.0", "jupyter_client >=4.4.0",
+                            "ipython>=4.0.0",
+                            "pathlib;python_version<'3.4'",
+                            "backports.tempfile;python_version<'3.0'"]
           )

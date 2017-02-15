@@ -3,16 +3,29 @@ from io import StringIO
 import os
 from pathlib import Path
 import sys
-from tempfile import TemporaryDirectory
+try:
+    from tempfile import TemporaryDirectory
+except ImportError:
+    from backports import tempfile
 
 from IPython.display import Image
 from metakernel import MetaKernel
 
-import matlab.engine
-from matlab.engine import MatlabExecutionError
-
 from . import __version__
-from .wurlitzer import Wurlitzer
+
+try:
+    from .wurlitzer import Wurlitzer
+except ImportError:
+    Wurlitzer = None
+
+try:
+    import matlab.engine
+    from matlab.engine import MatlabExecutionError
+except ImportError:
+    raise ImportError("""
+Matlab engine not installed:
+See https://www.mathworks.com/help/matlab/matlab-engine-for-python.htm
+""")
 
 
 class _PseudoStream:
@@ -67,13 +80,10 @@ class MatlabKernel(MetaKernel):
                 self._matlab.get(0., "defaultfigureposition")[0][2:])
             self.handle_plot_settings()
 
-        try:
-            with Wurlitzer(_PseudoStream(partial(self.Print, end="")),
-                           _PseudoStream(partial(self.Error, end=""))):
-                future = self._matlab.eval(code, nargout=0, async=True)
-                future.result()
-        except (SyntaxError, MatlabExecutionError, KeyboardInterrupt):
-            pass
+        if Wurlitzer:
+            self._execute_async(code)
+        else:
+            self._execute_sync(code)
 
         settings = self._validated_plot_settings
         if settings["backend"] == "inline":
@@ -220,6 +230,27 @@ class MatlabKernel(MetaKernel):
     def do_shutdown(self, restart):
         self._matlab.exit()
         return super(MatlabKernel, self).do_shutdown(restart)
+
+    def _execute_async(self, code):
+        try:
+            with Wurlitzer(_PseudoStream(partial(self.Print, end="")),
+                           _PseudoStream(partial(self.Error, end=""))):
+                future = self._matlab.eval(code, nargout=0, async=True)
+                future.result()
+        except (SyntaxError, MatlabExecutionError, KeyboardInterrupt):
+            pass
+
+    def _execute_sync(self, code):
+        out = StringIO()
+        err = StringIO()
+        try:
+            self._matlab.eval(code, nargout=0, stdout=out, stderr=err)
+        except (SyntaxError, MatlabExecutionError) as exc:
+            stdout = exc.args[0]
+            self.Error(stdout)
+            return
+        stdout = out.getvalue()
+        self.Print(stdout)
 
 
 if __name__ == '__main__':
