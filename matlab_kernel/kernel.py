@@ -162,7 +162,9 @@ class MatlabKernel(MetaKernel):
         if self.parse_code(code)["magic"]:
             return {"status": "complete"}
         with TemporaryDirectory() as tmpdir:
-            Path(tmpdir, "test_complete.m").write_text(code)
+            path = Path(tmpdir, "test_complete.m")
+            with path.open(mode='w') as f:
+                f.write(code)
             self._matlab.eval(
                 "try, pcode {} -inplace; catch, end".format(tmpdir),
                 nargout=0)
