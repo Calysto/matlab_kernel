@@ -6,7 +6,7 @@ import sys
 try:
     from tempfile import TemporaryDirectory
 except ImportError:
-    from backports import tempfile
+    from backports.tempfile import TemporaryDirectory
 
 from IPython.display import Image
 from metakernel import MetaKernel
