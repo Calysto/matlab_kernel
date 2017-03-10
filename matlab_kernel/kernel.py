@@ -1,5 +1,8 @@
 from functools import partial
-from io import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 import os
 from pathlib import Path
 import sys
