@@ -22,7 +22,7 @@ if __name__ == "__main__":
                        "Topic :: System :: Shells"],
           packages=find_packages(include=["matlab_kernel", "matlab_kernel.*"]),
           requires=["metakernel (>0.18.0)", "jupyter_client (>=4.4.0)",
-                    "pathlib", 'ipython (>=4.0.0)'],
+                    "ipython (>=4.0.0)"],
           install_requires=["metakernel>=0.18.0", "jupyter_client >=4.4.0",
                             "ipython>=4.0.0",
                             "backports.tempfile;python_version<'3.0'"]
