@@ -4,7 +4,6 @@ try:
 except ImportError:
     from io import StringIO
 import os
-from pathlib import Path
 import sys
 try:
     from tempfile import TemporaryDirectory
@@ -168,13 +167,13 @@ class MatlabKernel(MetaKernel):
         if self.parse_code(code)["magic"]:
             return {"status": "complete"}
         with TemporaryDirectory() as tmpdir:
-            path = Path(tmpdir, "test_complete.m")
-            with path.open(mode='w') as f:
+            path = os.path.join(tmpdir, "test_complete.m")
+            with open(path, mode='w') as f:
                 f.write(code)
             self._matlab.eval(
                 "try, pcode {} -inplace; catch, end".format(tmpdir),
                 nargout=0)
-            if Path(tmpdir, "test_complete.p").exists():
+            if os.path.exists(os.path.join(tmpdir, "test_complete.p")):
                 return {"status": "complete"}
             else:
                 return {"status": "incomplete"}

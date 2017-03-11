@@ -25,6 +25,5 @@ if __name__ == "__main__":
                     "pathlib", 'ipython (>=4.0.0)'],
           install_requires=["metakernel>=0.18.0", "jupyter_client >=4.4.0",
                             "ipython>=4.0.0",
-                            "pathlib;python_version<'3.4'",
                             "backports.tempfile;python_version<'3.0'"]
           )
