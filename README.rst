@@ -1,6 +1,6 @@
 
-A Jupyter kernel for Matlab
-===================================
+A Matlab kernel for Jupyter
+===========================
 
 Prerequisites: Install `Jupyter Notebook <http://jupyter.readthedocs.org/en/latest/install.html>`_ and the 
 `Matlab engine for Python <https://www.mathworks.com/help/matlab/matlab-engine-for-python.html>`_.
