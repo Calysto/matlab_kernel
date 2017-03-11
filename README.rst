@@ -1,5 +1,5 @@
 
-A Jupyter/IPython kernel for Matlab
+A Jupyter kernel for Matlab
 ===================================
 
 Prerequisites: Install `Jupyter Notebook <http://jupyter.readthedocs.org/en/latest/install.html>`_ and the 
