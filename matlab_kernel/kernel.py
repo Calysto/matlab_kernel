@@ -248,6 +248,8 @@ class MatlabKernel(MetaKernel):
     def _execute_sync(self, code):
         out = StringIO()
         err = StringIO()
+        if not isinstance(code, str):
+            code = code.encode('utf8')
         try:
             self._matlab.eval(code, nargout=0, stdout=out, stderr=err)
         except (SyntaxError, MatlabExecutionError) as exc:
