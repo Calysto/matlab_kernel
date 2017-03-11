@@ -1,8 +1,8 @@
 # Note: This is meant for octave_kernel developer use only
 .PHONY: all clean test release
 
-export NAME=matlab_kernel
-export VERSION=`python -c "import $(NAME); print($(NAME).__version__)"`
+export NAME=`python setup.py --name 2>/dev/null`
+export VERSION=`python setup.py --version 2>/dev/null`
 
 all: clean
 	python setup.py install
