@@ -1,13 +1,17 @@
-
 from setuptools import setup, find_packages
-import versioneer
+
+with open('matlab_kernel/__init__.py', 'rb') as fid:
+    for line in fid:
+        line = line.decode('utf-8')
+        if line.startswith('__version__'):
+            version = line.strip().split()[-1][1:-1]
+            break
 
 
 if __name__ == "__main__":
     setup(name="matlab_kernel",
           author="Steven Silvester, Antony Lee",
-          version=versioneer.get_version(),
-          cmdclass=versioneer.get_cmdclass(),
+          version=version,
           url="https://github.com/Calysto/matlab_kernel",
           license="BSD",
           long_description=open("README.rst").read(),

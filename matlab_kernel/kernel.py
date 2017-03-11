@@ -25,13 +25,11 @@ try:
     import matlab.engine
     from matlab.engine import MatlabExecutionError
 except ImportError:
-    raise ImportError("""
-Matlab engine not installed:
-See https://www.mathworks.com/help/matlab/matlab-engine-for-python.htm
-""")
+    matlab = None
 
 
 class _PseudoStream:
+
     def __init__(self, writer):
         self.write = writer
 
@@ -61,6 +59,11 @@ class MatlabKernel(MetaKernel):
 
     def __init__(self, *args, **kwargs):
         super(MatlabKernel, self).__init__(*args, **kwargs)
+        if matlab is None:
+            raise ImportError("""
+        Matlab engine not installed:
+        See https://www.mathworks.com/help/matlab/matlab-engine-for-python.htm
+        """)
         try:
             self._matlab = matlab.engine.start_matlab()
         except matlab.engine.EngineError:
