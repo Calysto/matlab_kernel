@@ -100,7 +100,7 @@ class MatlabKernel(MetaKernel):
                             "arrayfun("
                                 "@(h, i) print(h, sprintf('{}/%i', i), '-d{}', '-r{}'),"
                                 "get(0, 'children'), (1:{})')".format(
-                                    tmpdir,
+                                    '/'.join(tmpdir.split(os.sep)),
                                     settings["format"],
                                     settings["resolution"],
                                     nfig),
