@@ -1,3 +1,8 @@
+try:
+    import matlab.engine
+    from matlab.engine import MatlabExecutionError
+except ImportError:
+    matlab = None
 from functools import partial
 try:
     from StringIO import StringIO
@@ -19,12 +24,6 @@ try:
     from .wurlitzer import Wurlitzer
 except ImportError:
     Wurlitzer = None
-
-try:
-    import matlab.engine
-    from matlab.engine import MatlabExecutionError
-except ImportError:
-    matlab = None
 
 
 class _PseudoStream:
