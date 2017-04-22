@@ -18,8 +18,14 @@ To use it, run one of::
     # In the notebook interface, select Matlab from the 'New' menu
     $ jupyter qtconsole --kernel matlab
     $ jupyter console --kernel matlab
+    
+To remove from kernel listings::
 
-This is based on `MetaKernel <http://pypi.python.org/pypi/metakernel>`_,
+    $ jupyter kernelspec remove matlab
+    
+Additional information::
+
+The Matlab kernel is based on `MetaKernel <http://pypi.python.org/pypi/metakernel>`_,
 which means it features a standard set of magics.
 
 A sample notebook is available online_.
