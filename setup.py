@@ -13,7 +13,7 @@ PACKAGE_DATA = {
     DISTNAME: ['*.m'] + glob.glob('%s/**/*.*' % DISTNAME)
 }
 DATA_FILES = [
-    ('share/jupyter/kernels/octave', [
+    ('share/jupyter/kernels/matlab', [
         '%s/kernel.json' % DISTNAME
      ] + glob.glob('%s/images/*.png' % DISTNAME)
     )
