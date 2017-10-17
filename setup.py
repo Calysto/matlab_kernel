@@ -35,9 +35,9 @@ if __name__ == "__main__":
           package_data=PACKAGE_DATA,
           include_package_data=True,
           data_files=DATA_FILES,
-          requires=["metakernel (>0.18.0)", "jupyter_client (>=4.4.0)",
+          requires=["metakernel (>0.20.8.0)", "jupyter_client (>=4.4.0)",
                     "ipython (>=4.0.0)"],
-          install_requires=["metakernel>=0.18.0", "jupyter_client >=4.4.0",
+          install_requires=["metakernel>=0.20.8", "jupyter_client >=4.4.0",
                             "ipython>=4.0.0",
                             "backports.tempfile;python_version<'3.0'"]
           )
