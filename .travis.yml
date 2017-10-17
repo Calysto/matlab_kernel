@@ -6,3 +6,4 @@ install:
   - pip install .
 script:
   - make test
+  - python -m matlab_kernel install --user

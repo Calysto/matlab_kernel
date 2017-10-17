@@ -8,6 +8,7 @@ try:
     from StringIO import StringIO
 except ImportError:
     from io import StringIO
+import json
 import os
 import sys
 try:
@@ -32,6 +33,16 @@ class _PseudoStream:
         self.write = writer
 
 
+def get_kernel_json():
+    """Get the kernel json for the kernel.
+    """
+    here = os.path.dirname(__file__)
+    with open(os.path.join(here, 'kernel.json')) as fid:
+        data = json.load(fid)
+    data['argv'][0] = sys.executable
+    return data
+
+
 class MatlabKernel(MetaKernel):
     implementation = "Matlab Kernel"
     implementation_version = __version__,
@@ -39,21 +50,14 @@ class MatlabKernel(MetaKernel):
     language_version = __version__,
     banner = "Matlab Kernel"
     language_info = {
-        "mimetype": "text/x-matlab",
+        "mimetype": "text/x-octave",
         "codemirror_mode": "octave",
         "name": "matlab",
         "file_extension": ".m",
         "version": __version__,
         "help_links": MetaKernel.help_links,
     }
-    kernel_json = {
-        "argv": [
-            sys.executable, "-m", "matlab_kernel", "-f", "{connection_file}"],
-        "display_name": "Matlab",
-        "language": "matlab",
-        "mimetype": "text/x-matlab",
-        "name": "matlab",
-    }
+    kernel_json = get_kernel_json()
 
     def __init__(self, *args, **kwargs):
         super(MatlabKernel, self).__init__(*args, **kwargs)
