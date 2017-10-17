@@ -1,3 +1,4 @@
+import glob
 from setuptools import setup, find_packages
 
 with open('matlab_kernel/__init__.py', 'rb') as fid:
@@ -7,6 +8,16 @@ with open('matlab_kernel/__init__.py', 'rb') as fid:
             version = line.strip().split()[-1][1:-1]
             break
 
+DISTNAME = 'matlab_kernel'
+PACKAGE_DATA = {
+    DISTNAME: ['*.m'] + glob.glob('%s/**/*.*' % DISTNAME)
+}
+DATA_FILES = [
+    ('share/jupyter/kernels/octave', [
+        '%s/kernel.json' % DISTNAME
+     ] + glob.glob('%s/images/*.png' % DISTNAME)
+    )
+]
 
 if __name__ == "__main__":
     setup(name="matlab_kernel",
@@ -21,6 +32,9 @@ if __name__ == "__main__":
                        "Programming Language :: Python :: 3.5",
                        "Topic :: System :: Shells"],
           packages=find_packages(include=["matlab_kernel", "matlab_kernel.*"]),
+          package_data=PACKAGE_DATA,
+          include_package_data=True,
+          data_files=DATA_FILES,
           requires=["metakernel (>0.18.0)", "jupyter_client (>=4.4.0)",
                     "ipython (>=4.0.0)"],
           install_requires=["metakernel>=0.18.0", "jupyter_client >=4.4.0",

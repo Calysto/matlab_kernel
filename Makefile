@@ -5,15 +5,15 @@ export NAME=`python setup.py --name 2>/dev/null`
 export VERSION=`python setup.py --version 2>/dev/null`
 
 all: clean
-	python setup.py install
+	pip install .
 
 clean:
 	rm -rf build
 	rm -rf dist
 
 test: clean
-	python setup.py build
-	python -m matlab_kernel install
+	pip install .
+	python -c "from jupyter_client.kernelspec import find_kernel_specs; assert 'matlab' in find_kernel_specs()"
 
 release: test clean
 	pip install wheel

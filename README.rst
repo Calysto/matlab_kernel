@@ -10,7 +10,6 @@ To install::
     $ pip install matlab_kernel
     # or `pip install git+https://github.com/Calysto/matlab_kernel`
     # for the devel version.
-    $ python -m matlab_kernel install
 
 To use it, run one of::
 
@@ -34,5 +33,11 @@ A note about plotting.  After each call to Matlab, we ask Matlab to save any
 open figures to image files whose format and resolution are defined using the
 ``%plot`` magic.  The resulting image is shown inline in the notebook.  You can
 use ``%plot native`` to raise normal Matlab windows instead.
+
+
+Advanced Installation Notes:: 
+
+We automatically install a Jupyter kernelspec when installing the python package. This location can be found using ``jupyter kernelspec list``. If the default location is not desired, you can remove the directory for the octave kernel, and install using python -m matlab_kernel install. See python -m matlab_kernel install --help for available options.
+
 
 .. _online: http://nbviewer.ipython.org/github/Calysto/matlab_kernel/blob/master/matlab_kernel.ipynb
