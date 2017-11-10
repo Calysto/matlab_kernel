@@ -41,3 +41,5 @@ We automatically install a Jupyter kernelspec when installing the python package
 
 
 .. _online: http://nbviewer.ipython.org/github/Calysto/matlab_kernel/blob/master/matlab_kernel.ipynb
+
+It has been reported that Matlab version 2016b works fine. However, Matlab 2014b does not work with Python 3.5. 
