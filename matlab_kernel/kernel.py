@@ -17,7 +17,7 @@ except ImportError:
     from backports.tempfile import TemporaryDirectory
 
 from IPython.display import Image
-from metakernel import MetaKernel
+from metakernel import MetaKernel, ExceptionWrapper
 
 from . import __version__
 
@@ -89,9 +89,9 @@ class MatlabKernel(MetaKernel):
             self.handle_plot_settings()
 
         if Wurlitzer:
-            self._execute_async(code)
+            retval = self._execute_async(code)
         else:
-            self._execute_sync(code)
+            retval = self._execute_sync(code)
 
         settings = self._validated_plot_settings
         if settings["backend"] == "inline":
@@ -116,6 +116,8 @@ class MatlabKernel(MetaKernel):
                                 filename="{}/{}".format(tmpdir, fname)))
                     except Exception as exc:
                         self.Error(exc)
+
+        return retval
 
     def get_kernel_help_on(self, info, level=0, none_on_fail=False):
         name = info.get("help_obj", "")
@@ -247,8 +249,9 @@ class MatlabKernel(MetaKernel):
                            _PseudoStream(partial(self.Error, end=""))):
                 future = self._matlab.eval(code, nargout=0, async=True)
                 future.result()
-        except (SyntaxError, MatlabExecutionError, KeyboardInterrupt):
-            pass
+        except (SyntaxError, MatlabExecutionError, KeyboardInterrupt) as exc:
+            stdout = exc.args[0]
+            return ExceptionWrapper("Error", -1, stdout)
 
     def _execute_sync(self, code):
         out = StringIO()
@@ -260,7 +263,7 @@ class MatlabKernel(MetaKernel):
         except (SyntaxError, MatlabExecutionError) as exc:
             stdout = exc.args[0]
             self.Error(stdout)
-            return
+            return ExceptionWrapper("Error", -1, stdout)
         stdout = out.getvalue()
         self.Print(stdout)
 
