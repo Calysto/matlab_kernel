@@ -18,13 +18,9 @@ except ImportError:
 
 from IPython.display import Image
 from metakernel import MetaKernel, ExceptionWrapper
+from wurlitzer import pipes
 
 from . import __version__
-
-try:
-    from .wurlitzer import Wurlitzer
-except ImportError:
-    Wurlitzer = None
 
 
 class _PseudoStream:
@@ -88,10 +84,7 @@ class MatlabKernel(MetaKernel):
                 self._matlab.get(0., "defaultfigureposition")[0][2:])
             self.handle_plot_settings()
 
-        if Wurlitzer:
-            retval = self._execute_async(code)
-        else:
-            retval = self._execute_sync(code)
+        retval = self._execute_async(code)
 
         settings = self._validated_plot_settings
         if settings["backend"] == "inline":
@@ -245,8 +238,8 @@ class MatlabKernel(MetaKernel):
 
     def _execute_async(self, code):
         try:
-            with Wurlitzer(_PseudoStream(partial(self.Print, end="")),
-                           _PseudoStream(partial(self.Error, end=""))):
+            with pipes(stdout=_PseudoStream(partial(self.Print, end="")),
+                       stderr=_PseudoStream(partial(self.Error, end=""))):
                 future = self._matlab.eval(code, nargout=0, async=True)
                 future.result()
         except (SyntaxError, MatlabExecutionError, KeyboardInterrupt) as exc:
