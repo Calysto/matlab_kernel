@@ -18,7 +18,11 @@ except ImportError:
 
 from IPython.display import Image
 from metakernel import MetaKernel, ExceptionWrapper
-from wurlitzer import pipes
+
+try:
+    from wurlitzer import pipes
+except Exception:
+    pipes = None
 
 from . import __version__
 
@@ -84,7 +88,10 @@ class MatlabKernel(MetaKernel):
                 self._matlab.get(0., "defaultfigureposition")[0][2:])
             self.handle_plot_settings()
 
-        retval = self._execute_async(code)
+        if pipes:
+            retval = self._execute_async(code)
+        else:
+            retval = self._execute_sync(code)
 
         settings = self._validated_plot_settings
         if settings["backend"] == "inline":
@@ -229,7 +236,7 @@ class MatlabKernel(MetaKernel):
             # This isn't a true restart
             self._matlab = None  # disconnect from engine
             self._matlab = matlab.engine.connect_matlab()  # re-connect
-            self._matlab.clear('all')  # clear all content 
+            self._matlab.clear('all')  # clear all content
         self._first = True
 
     def do_shutdown(self, restart):
