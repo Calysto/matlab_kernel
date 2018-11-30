@@ -2,7 +2,6 @@
 
 import unittest
 from jupyter_kernel_test import KernelTests
-import os
 
 
 class MatlabKernelTests(KernelTests):
