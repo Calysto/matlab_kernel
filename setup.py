@@ -39,5 +39,6 @@ if __name__ == "__main__":
                     "ipython (>=4.0.0)"],
           install_requires=["metakernel>=0.20.8", "jupyter_client >=4.4.0",
                             "ipython>=4.0.0",
-                            "backports.tempfile;python_version<'3.0'"]
+                            "backports.tempfile;python_version<'3.0'",
+                            "wurlitzer>=1.0.2"]
           )
