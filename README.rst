@@ -40,7 +40,8 @@ Additional information
 ----------------------
 
 The Matlab kernel is based on `MetaKernel <http://pypi.python.org/pypi/metakernel>`_,
-which means it features a standard set of magics.
+which means it features a standard set of magics.  For a full list of magics,
+run ``%lsmagic`` in a cell.
 
 A sample notebook is available online_.
 
