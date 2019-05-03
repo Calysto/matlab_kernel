@@ -12,7 +12,6 @@ if __name__ == "__main__":
     print('\nConnecting to Matlab...')
     try:
         m = MatlabKernel()
-        m.makeWrapper()
         print('Matlab connection established')
         print(o.banner)
     except Exception as e:
