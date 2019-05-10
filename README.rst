@@ -28,12 +28,32 @@ To remove from kernel listings::
 
 Troubleshooting
 ---------------
+
+Kernel Times Out While Starting
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 If the kernel is not starting, try running the following from a terminal.
 
 .. code
   python -m matlab_kernel.check
 
 Please include that output if opening an issue.
+
+
+Kernel is Not Listed
+~~~~~~~~~~~~~~~~~~~~
+If the kernel is not listed as an available kernel, first try the following command:
+
+.. code:: shell
+
+    python -m matlab_kernel install --user
+
+If the kernel is still not listed, verify that the following point to the same
+version of python:
+
+.. code:: shell
+
+    which python  # use "where" if using cmd.exe
+    which jupyter
 
 
 Additional information
