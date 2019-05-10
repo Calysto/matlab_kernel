@@ -10,11 +10,13 @@ Install `Jupyter Notebook <http://jupyter.readthedocs.org/en/latest/install.html
 Installation
 ------------
 
-    $ pip install matlab_kernel
-    # or `pip install git+https://github.com/Calysto/matlab_kernel`
-    # for the devel version.
+Install using::
 
-To use it, run one of::
+    $ pip install matlab_kernel
+
+or ``pip install git+https://github.com/Calysto/matlab_kernel`` for the dev version.
+
+To use the kernel, run one of::
 
     $ jupyter notebook
     # In the notebook interface, select Matlab from the 'New' menu
@@ -74,9 +76,10 @@ use ``%plot native`` to raise normal Matlab windows instead.
 Advanced Installation Notes
 ---------------------------
 
-We automatically install a Jupyter kernelspec when installing the python package. This location can be found using ``jupyter kernelspec list``. If the default location is not desired, you can remove the directory for the octave kernel, and install using python -m matlab_kernel install. See python -m matlab_kernel install --help for available options.
+We automatically install a Jupyter kernelspec when installing the python package. This location can be found using ``jupyter kernelspec list``. If the default location is not desired, you can remove the directory for the octave kernel, and install using ``python -m matlab_kernel install``. See ``python -m matlab_kernel install --help`` for available options.
 
+It has been reported that Matlab version 2016b works fine. However, Matlab 2014b does not work with Python 3.5.
 
 .. _online: http://nbviewer.ipython.org/github/Calysto/matlab_kernel/blob/master/matlab_kernel.ipynb
 
-It has been reported that Matlab version 2016b works fine. However, Matlab 2014b does not work with Python 3.5.
+
