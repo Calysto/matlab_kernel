@@ -28,6 +28,19 @@ To remove from kernel listings::
     $ jupyter kernelspec remove matlab
 
 
+Configuration
+-------------
+The kernel can be configured by adding an ``matlab_kernel_config.py`` file to the
+``jupyter`` config path.  The ``MatlabKernel`` class offers ``plot_settings`` as a configurable traits.
+The available plot settings are:
+'format', 'backend', 'width', 'height', and 'resolution'.
+
+.. code:: bash
+
+    cat ~/.jupyter/matlab_kernel_config.py
+    c.MatlabKernel.plot_settings = dict(format='svg')
+
+
 Troubleshooting
 ---------------
 

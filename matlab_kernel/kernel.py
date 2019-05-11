@@ -44,6 +44,7 @@ def get_kernel_json():
 
 
 class MatlabKernel(MetaKernel):
+    app_name = 'matlab_kernel'
     implementation = "Matlab Kernel"
     implementation_version = __version__,
     language = "matlab"
