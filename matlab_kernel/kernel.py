@@ -60,35 +60,34 @@ class MatlabKernel(MetaKernel):
     }
     kernel_json = get_kernel_json()
 
-    def __init__(self, *args, **kwargs):
-        super(MatlabKernel, self).__init__(*args, **kwargs)
+    def get_usage(self):
+        return "This is the Matlab kernel."
+
+    @property
+    def _matlab(self):
+        if self.__matlab:
+            return self.__matlab
+
         if matlab is None:
             raise ImportError("""
         Matlab engine not installed:
         See https://www.mathworks.com/help/matlab/matlab-engine-for-python.htm
         """)
         try:
-            self._matlab = matlab.engine.start_matlab()
+            self.__matlab = matlab.engine.start_matlab()
         except matlab.engine.EngineError:
-            self._matlab = matlab.engine.connect_matlab()
-        self._first = True
+            self.__matlab = matlab.engine.connect_matlab()
         self._validated_plot_settings = {
             "backend": "inline",
             "size": (560, 420),
             "format": "png",
             "resolution": 96,
         }
-
-    def get_usage(self):
-        return "This is the Matlab kernel."
+        self._validated_plot_settings["size"] = tuple(
+            self._matlab.get(0., "defaultfigureposition")[0][2:])
+        self.handle_plot_settings()
 
     def do_execute_direct(self, code):
-        if self._first:
-            self._first = False
-            self._validated_plot_settings["size"] = tuple(
-                self._matlab.get(0., "defaultfigureposition")[0][2:])
-            self.handle_plot_settings()
-
         if pipes:
             retval = self._execute_async(code)
         else:
@@ -152,7 +151,6 @@ class MatlabKernel(MetaKernel):
         #   engine are ignored.
         # R2013a (not supported due to lack of Python engine):
         #   mtFindAllTabCompletions(String substring, int offset [optional])
-
         name = info["obj"]
         compls = self._matlab.eval(
             "cell(com.mathworks.jmi.MatlabMCR()."
@@ -238,7 +236,7 @@ class MatlabKernel(MetaKernel):
             self._matlab = None  # disconnect from engine
             self._matlab = matlab.engine.connect_matlab()  # re-connect
             self._matlab.clear('all')  # clear all content
-        self._first = True
+        self.__matlab = None
 
     def do_shutdown(self, restart):
         self._matlab.exit()
