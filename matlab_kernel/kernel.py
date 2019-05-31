@@ -60,6 +60,10 @@ class MatlabKernel(MetaKernel):
     }
     kernel_json = get_kernel_json()
 
+    def __init__(self, *args, **kwargs):
+        super(MatlabKernel, self).__init__(*args, **kwargs)
+        self.__matlab = None
+
     def get_usage(self):
         return "This is the Matlab kernel."
 
