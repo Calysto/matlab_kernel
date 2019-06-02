@@ -13,6 +13,6 @@ if __name__ == "__main__":
     try:
         m = MatlabKernel()
         print('Matlab connection established')
-        print(o.banner)
+        print(m.banner)
     except Exception as e:
         print(e)
