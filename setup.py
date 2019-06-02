@@ -26,6 +26,7 @@ if __name__ == "__main__":
           url="https://github.com/Calysto/matlab_kernel",
           license="BSD",
           long_description=open("README.rst").read(),
+          long_description_content_type='text/x-rst',
           classifiers=["Framework :: IPython",
                        "License :: OSI Approved :: BSD License",
                        "Programming Language :: Python :: 3.4",
