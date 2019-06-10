@@ -249,8 +249,8 @@ class MatlabKernel(MetaKernel):
 
     def _execute_async(self, code):
         try:
-            with pipes(stdout=_PseudoStream(partial(self.Print, sep="", end="")),
-                stderr=_PseudoStream(partial(self.Error, sep="", end=""))):
+            with pipes(stdout=_PseudoStream(partial(self.Print, end="")),
+                stderr=_PseudoStream(partial(self.Error, end=""))):
                 kwargs = { 'nargout': 0, 'async': True }
                 future = self._matlab.eval(code, **kwargs)
                 future.result()
