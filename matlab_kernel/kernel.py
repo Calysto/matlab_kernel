@@ -90,6 +90,7 @@ class MatlabKernel(MetaKernel):
         self._validated_plot_settings["size"] = tuple(
             self._matlab.get(0., "defaultfigureposition")[0][2:])
         self.handle_plot_settings()
+        return self.__matlab
 
     def do_execute_direct(self, code):
         if pipes:
@@ -249,13 +250,14 @@ class MatlabKernel(MetaKernel):
     def _execute_async(self, code):
         try:
             with pipes(stdout=_PseudoStream(partial(self.Print, end="")),
-                       stderr=_PseudoStream(partial(self.Error, end=""))):
+                stderr=_PseudoStream(partial(self.Error, end=""))):
                 kwargs = { 'nargout': 0, 'async': True }
                 future = self._matlab.eval(code, **kwargs)
                 future.result()
         except (SyntaxError, MatlabExecutionError, KeyboardInterrupt) as exc:
-            stdout = exc.args[0]
-            return ExceptionWrapper("Error", -1, stdout)
+            pass
+            #stdout = exc.args[0]
+            #return ExceptionWrapper("Error", -1, stdout)
 
     def _execute_sync(self, code):
         out = StringIO()
