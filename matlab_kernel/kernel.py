@@ -257,7 +257,7 @@ class MatlabKernel(MetaKernel):
         except (SyntaxError, MatlabExecutionError, KeyboardInterrupt) as exc:
             pass
             #stdout = exc.args[0]
-            #return ExceptionWrapper("Error", "-1", stdout)
+            #return ExceptionWrapper("Error", -1, stdout)
 
     def _execute_sync(self, code):
         out = StringIO()
@@ -269,7 +269,7 @@ class MatlabKernel(MetaKernel):
         except (SyntaxError, MatlabExecutionError) as exc:
             stdout = exc.args[0]
             self.Error(stdout)
-            return ExceptionWrapper("Error", "-1", stdout)
+            return ExceptionWrapper("Error", -1, stdout)
         stdout = out.getvalue()
         self.Print(stdout)
 
