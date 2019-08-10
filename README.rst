@@ -48,7 +48,7 @@ Kernel Times Out While Starting
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 If the kernel is not starting, try running the following from a terminal.
 
-.. code::shell
+.. code:: shell
 
   python -m matlab_kernel.check
 
