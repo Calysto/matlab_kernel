@@ -3,6 +3,8 @@ try:
     from matlab.engine import MatlabExecutionError
 except ImportError:
     matlab = None
+    class MatlabExecutionError(Exception):
+        pass
 from functools import partial
 try:
     from StringIO import StringIO

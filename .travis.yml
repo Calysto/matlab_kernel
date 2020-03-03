@@ -7,3 +7,4 @@ install:
 script:
   - make test
   - python -m matlab_kernel install --user
+  - python -m matlab_kernel.check

@@ -14,5 +14,6 @@ if __name__ == "__main__":
         m = MatlabKernel()
         print('Matlab connection established')
         print(m.banner)
+        print(m.do_execute_direct('disp("hi from Matlab!")'))
     except Exception as e:
         print(e)
