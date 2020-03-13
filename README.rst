@@ -97,3 +97,13 @@ It has been reported that Matlab version 2016b works fine. However, Matlab 2014b
 .. _online: http://nbviewer.ipython.org/github/Calysto/matlab_kernel/blob/master/matlab_kernel.ipynb
 
 
+Development
+~~~~~~~~~~~
+
+Install the package locally::
+
+    $ pip install -e .
+    $ python -m matlab_kernel install
+
+As you make changes, test them in a notebook (restart the kernel between changes).
+
