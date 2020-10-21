@@ -253,7 +253,7 @@ class MatlabKernel(MetaKernel):
         try:
             with pipes(stdout=_PseudoStream(partial(self.Print, end="")),
                 stderr=_PseudoStream(partial(self.Error, end=""))):
-                kwargs = { 'nargout': 0, 'async': True }
+                kwargs = { 'nargout': 0, 'background': True }
                 future = self._matlab.eval(code, **kwargs)
                 future.result()
         except (SyntaxError, MatlabExecutionError, KeyboardInterrupt) as exc:
