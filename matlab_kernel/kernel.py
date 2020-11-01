@@ -83,6 +83,14 @@ class MatlabKernel(MetaKernel):
             self.__matlab = matlab.engine.start_matlab()
         except matlab.engine.EngineError:
             self.__matlab = matlab.engine.connect_matlab()
+        # detecting the correct kwargs for async running
+        # matlab 'async' param is deprecated since it became a keyword in python 3.7
+        # instead, 'background' param is available and recommended since Matlab R2017b
+        self._async_kwargs = {'nargout': 0, 'async': True}
+        try:
+            self._matlab.eval('version', **self._async_kwargs)
+        except SyntaxError:
+            self._async_kwargs = {'nargout': 0, 'background': True}
         self._validated_plot_settings = {
             "backend": "inline",
             "size": (560, 420),
@@ -253,8 +261,7 @@ class MatlabKernel(MetaKernel):
         try:
             with pipes(stdout=_PseudoStream(partial(self.Print, end="")),
                 stderr=_PseudoStream(partial(self.Error, end=""))):
-                kwargs = { 'nargout': 0, 'background': True }
-                future = self._matlab.eval(code, **kwargs)
+                future = self._matlab.eval(code, **self._async_kwargs)
                 future.result()
         except (SyntaxError, MatlabExecutionError, KeyboardInterrupt) as exc:
             pass
