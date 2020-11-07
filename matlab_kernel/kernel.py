@@ -174,10 +174,11 @@ class MatlabKernel(MetaKernel):
 
         # For structs, we need to return `structname.fieldname` instead of just
         # `fieldname`, which `mtFindAllTabCompletions` does.
+        # For tables also.
 
         if "." in name:
             prefix, _ = name.rsplit(".", 1)
-            if self._matlab.eval("isstruct({})".format(prefix)):
+            if self._matlab.eval("isstruct({})".format(prefix)) or self._matlab.eval("istable({})".format(prefix)):
                 compls = ["{}.{}".format(prefix, compl) for compl in compls]
 
         return compls
