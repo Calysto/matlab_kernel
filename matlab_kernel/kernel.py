@@ -178,7 +178,7 @@ class MatlabKernel(MetaKernel):
 
         if "." in name:
             prefix, _ = name.rsplit(".", 1)
-            if self._matlab.eval("isstruct({})".format(prefix)) or self._matlab.eval("istable({})".format(prefix)):
+            if self._matlab.eval("isstruct({})".format(prefix)) | self._matlab.eval("istable({})".format(prefix)):
                 compls = ["{}.{}".format(prefix, compl) for compl in compls]
 
         return compls
