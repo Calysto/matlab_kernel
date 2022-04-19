@@ -28,7 +28,7 @@ except Exception:
 
 from . import __version__
 
-
+IS_CONNECT = "connect-to-existing-kernel" in os.environ.keys()
 class _PseudoStream:
 
     def __init__(self, writer):
@@ -39,9 +39,10 @@ def get_kernel_json():
     """Get the kernel json for the kernel.
     """
     here = os.path.dirname(__file__)
-    with open(os.path.join(here, 'kernel.json')) as fid:
+    kernel_name = 'matlab_connect' if IS_CONNECT else 'matlab'
+    with open(os.path.join(here, kernel_name ,'kernel.json')) as fid:
         data = json.load(fid)
-    data['argv'][0] = sys.executable
+    # data['argv'][0] = sys.executable
     return data
 
 
@@ -79,10 +80,16 @@ class MatlabKernel(MetaKernel):
         Matlab engine not installed:
         See https://www.mathworks.com/help/matlab/matlab-engine-for-python.htm
         """)
-        try:
-            self.__matlab = matlab.engine.start_matlab()
-        except matlab.engine.EngineError:
-            self.__matlab = matlab.engine.connect_matlab()
+        if IS_CONNECT:
+            try:
+                self.__matlab = matlab.engine.connect_matlab()
+            except matlab.engine.EngineError:
+                self.__matlab = matlab.engine.start_matlab()
+        else:
+            try:
+                self.__matlab = matlab.engine.start_matlab()
+            except matlab.engine.EngineError:
+                self.__matlab = matlab.engine.connect_matlab()
         # detecting the correct kwargs for async running
         # matlab 'async' param is deprecated since it became a keyword in python 3.7
         # instead, 'background' param is available and recommended since Matlab R2017b
