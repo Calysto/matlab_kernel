@@ -1,4 +1,4 @@
 include versioneer.py
 include matlab_kernel/_version.py
-include matlab_kernel/kernel.json
+include matlab_kernel/kernel_template.json
 recursive-include matlab_kernel *.png

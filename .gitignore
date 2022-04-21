@@ -5,3 +5,5 @@ build/
 dist/
 *.pyc
 .*.swp
+matlab_kernel/matlab/
+matlab_kernel/matlab_connect/

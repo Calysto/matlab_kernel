@@ -1,4 +1,7 @@
 import glob
+import json
+import os
+import sys
 from setuptools import setup, find_packages
 
 with open('matlab_kernel/__init__.py', 'rb') as fid:
@@ -9,12 +12,35 @@ with open('matlab_kernel/__init__.py', 'rb') as fid:
             break
 
 DISTNAME = 'matlab_kernel'
+
+# generating kernel.json for both kernels
+os.makedirs(os.path.join(DISTNAME, 'matlab'), exist_ok=True)
+with open(os.path.join(DISTNAME, 'kernel_template.json'), 'r') as fp:
+    matlab_json = json.load(fp)
+matlab_json['argv'][0] = sys.executable
+with open(os.path.join(DISTNAME, 'matlab','kernel.json'), 'w') as fp:
+    json.dump(matlab_json, fp)
+
+os.makedirs(os.path.join(DISTNAME, 'matlab_connect'), exist_ok=True)
+with open(os.path.join(DISTNAME, 'kernel_template.json'), 'r') as fp:
+    matlab_json = json.load(fp)
+matlab_json['argv'][0] = sys.executable
+matlab_json['display_name'] = 'Matlab (Connection)'
+matlab_json['name'] = "matlab_connect"
+matlab_json['env'] = {'connect-to-existing-kernel': '1'}
+with open(os.path.join(DISTNAME, 'matlab_connect','kernel.json'), 'w') as fp:
+    json.dump(matlab_json, fp)
+
 PACKAGE_DATA = {
     DISTNAME: ['*.m'] + glob.glob('%s/**/*.*' % DISTNAME)
 }
 DATA_FILES = [
     ('share/jupyter/kernels/matlab', [
-        '%s/kernel.json' % DISTNAME
+        '%s/matlab/kernel.json' % DISTNAME
+     ] + glob.glob('%s/images/*.png' % DISTNAME)
+    ), 
+    ('share/jupyter/kernels/matlab_connect', [
+        '%s/matlab_connect/kernel.json' % DISTNAME
      ] + glob.glob('%s/images/*.png' % DISTNAME)
     )
 ]
