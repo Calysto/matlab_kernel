@@ -18,8 +18,9 @@ try:
 except ImportError:
     from backports.tempfile import TemporaryDirectory
 
-from IPython.display import Image
+from IPython.display import Image, SVG
 from metakernel import MetaKernel, ExceptionWrapper
+from xml.dom import minidom
 
 try:
     from wurlitzer import pipes
@@ -134,8 +135,15 @@ class MatlabKernel(MetaKernel):
                             "arrayfun(@(h) close(h), get(0, 'children'))",
                             nargout=0)
                         for fname in sorted(os.listdir(tmpdir)):
-                            self.Display(Image(
-                                filename="{}/{}".format(tmpdir, fname)))
+                            if settings["format"] == "svg":
+                                img = SVG(filename="{}/{}".format(tmpdir, fname))
+                                try:
+                                    img.data = self._fix_svg_size(img.data)
+                                except Exception as e:
+                                    pass
+                            else:
+                                img = Image(filename="{}/{}".format(tmpdir, fname))
+                            self.Display(img)
                     except Exception as exc:
                         self.Error(exc)
 
@@ -236,6 +244,11 @@ class MatlabKernel(MetaKernel):
         if resolution is not None:
             settings["resolution"] = resolution
 
+
+        format = raw.get("format")
+        if format is not None:
+            settings["format"] = format
+
         backend = settings["backend"]
         width, height = settings["size"]
         resolution = settings["resolution"]
@@ -290,6 +303,36 @@ class MatlabKernel(MetaKernel):
         stdout = out.getvalue()
         self.Print(stdout)
 
+    def _fix_svg_size(self, data):
+        """MATLAB Generated SVG have the wrong height/width attributes.
+        We first set the figure viewBox to be '0 0 old_width old_height'
+        then we set the viewPort to the correct width/height.
+
+        NOTE: adapted from octave_kernel
+        [solution](https://github.com/Calysto/octave_kernel/blob/a613c29f40e22b1751164bca30df381799539f06/octave_kernel/kernel.py#L344-L371).
+        """
+        # Minidom does not support parseUnicode, so it must be decoded
+        # to accept unicode characters
+        parsed = minidom.parseString(data.encode('utf-8'))
+        (svg,) = parsed.getElementsByTagName('svg')
+
+        height = svg.getAttribute('height')
+        width = svg.getAttribute('width')
+
+        svg.setAttribute('viewBox', '0 0 %d %d '% (int(width), int(height)))
+        # Handle overrides in case they were not encoded.
+        settings = self.plot_settings
+        if settings['width'] != -1:
+            if settings['height'] == -1:
+                height = height * settings['width'] / width
+            width = settings['width']
+        if settings['height'] != -1:
+            if settings['width'] == -1:
+                width = width * settings['height'] / height
+            height = settings['height']
+        svg.setAttribute('width', '%dpx' % width)
+        svg.setAttribute('height', '%dpx' % height)
+        return svg.toxml()
 
 if __name__ == '__main__':
     try:
